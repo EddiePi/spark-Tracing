@@ -404,6 +404,7 @@ private[spark] class TaskSetManager(
    * @param execId the executor Id of the offered resource
    * @param host  the host Id of the offered resource
    * @param maxLocality the maximum locality we want to schedule the tasks at
+   * @return TaskDescription including the serialized task
    */
   @throws[TaskNotSerializableException]
   def resourceOffer(
