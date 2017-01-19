@@ -28,7 +28,6 @@ import javax.annotation.concurrent.GuardedBy
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import scala.util.control.NonFatal
-
 import org.apache.spark._
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
@@ -37,6 +36,7 @@ import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.scheduler.{AccumulableInfo, DirectTaskResult, IndirectTaskResult, Task}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
+import org.apache.spark.tracing.{TaskAttempt, TaskTracingManager}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
 
@@ -135,6 +135,9 @@ private[spark] class Executor(
 
   startDriverHeartbeater()
 
+  // Edit by Eddie
+  private val taskTracingManager: TaskTracingManager = new TaskTracingManager(env.conf)
+
   def launchTask(
       context: ExecutorBackend,
       taskId: Long,
@@ -144,6 +147,9 @@ private[spark] class Executor(
     val tr = new TaskRunner(context, taskId = taskId, attemptNumber = attemptNumber, taskName,
       serializedTask)
     runningTasks.put(taskId, tr)
+
+    // Edit by Eddie
+    taskTracingManager.updateTaskInfo(new TaskAttempt(taskName, System.currentTimeMillis()))
     threadPool.execute(tr)
   }
 
