@@ -30,7 +30,7 @@ public class TaskTracingManager {
     public TaskTracingManager(SparkConf conf) {
         this.conf = conf;
         serverURL = conf.get("spark.tracing.address", "localhost");
-        serverPort = conf.getInt("spark.tracing.port", 8040);
+        serverPort = conf.getInt("spark.tracing.port", 8089);
     }
 
     public boolean updateTaskInfo(TaskAttempt ta) {
