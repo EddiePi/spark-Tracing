@@ -505,7 +505,7 @@ class SparkContext(config: SparkConf) extends Logging {
 
     // Edit by Eddie
     // Create the TracingManager
-    _tracingManager = new TracingManager(conf)
+    _tracingManager = new TracingManager(_conf)
 
 
     // Create and start the scheduler
