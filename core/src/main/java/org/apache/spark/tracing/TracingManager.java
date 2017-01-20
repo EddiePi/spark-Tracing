@@ -46,7 +46,7 @@ public class TracingManager {
             return;
         }
         try {
-            JobManageMentService.Client jClient = new JobManageMentService.Client(protocol);
+            JobManagementService.Client jClient = new JobManagementService.Client(protocol);
             transport.open();
             jClient.createJob(jobInfo);
 
@@ -66,7 +66,7 @@ public class TracingManager {
             return;
         }
         try {
-            JobManageMentService.Client jClient = new JobManageMentService.Client(protocol);
+            JobManagementService.Client jClient = new JobManagementService.Client(protocol);
             transport.open();
             jClient.updateJobInfo(jobInfo);
 
