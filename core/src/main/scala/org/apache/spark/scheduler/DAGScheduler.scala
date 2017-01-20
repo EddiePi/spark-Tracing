@@ -29,9 +29,7 @@ import scala.concurrent.duration._
 import scala.language.existentials
 import scala.language.postfixOps
 import scala.util.control.NonFatal
-
 import org.apache.commons.lang3.SerializationUtils
-
 import org.apache.spark._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.executor.TaskMetrics
@@ -42,6 +40,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.storage._
 import org.apache.spark.storage.BlockManagerMessages.BlockManagerHeartbeat
+import org.apache.spark.tracing.TracingManager
 import org.apache.spark.util._
 
 /**
@@ -118,6 +117,7 @@ class DAGScheduler(
     mapOutputTracker: MapOutputTrackerMaster,
     blockManagerMaster: BlockManagerMaster,
     env: SparkEnv,
+    tracingManager: TracingManager,
     clock: Clock = new SystemClock())
   extends Logging {
 
@@ -128,7 +128,8 @@ class DAGScheduler(
       sc.listenerBus,
       sc.env.mapOutputTracker.asInstanceOf[MapOutputTrackerMaster],
       sc.env.blockManager.master,
-      sc.env)
+      sc.env,
+      sc.tracingManager)
   }
 
   def this(sc: SparkContext) = this(sc, sc.taskScheduler)
@@ -844,6 +845,9 @@ class DAGScheduler(
     }
 
     val job = new ActiveJob(jobId, finalStage, callSite, listener, properties)
+    // Edit by Eddie
+    // Transfer the job information to tracing server
+    tracingManager.createJob(new org.apache.spark.tracing.JobInfo(jobId, taskScheduler.applicationId()))
     clearCacheLocs()
     logInfo("Got job %s (%s) with %d output partitions".format(
       job.jobId, callSite.shortForm, partitions.length))

@@ -36,7 +36,7 @@ import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.scheduler.{AccumulableInfo, DirectTaskResult, IndirectTaskResult, Task}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
-import org.apache.spark.tracing.{TaskAttempt, TaskTracingManager}
+import org.apache.spark.tracing.TracingManager
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
 
@@ -136,7 +136,7 @@ private[spark] class Executor(
   startDriverHeartbeater()
 
   // Edit by Eddie
-  private val taskTracingManager: TaskTracingManager = new TaskTracingManager(env.conf)
+  private val taskTracingManager: TracingManager = new TracingManager(env.conf)
 
   def launchTask(
       context: ExecutorBackend,
@@ -148,8 +148,6 @@ private[spark] class Executor(
       serializedTask)
     runningTasks.put(taskId, tr)
 
-    // Edit by Eddie
-    taskTracingManager.updateTaskInfo(new TaskAttempt(taskName, System.currentTimeMillis()))
     threadPool.execute(tr)
   }
 
