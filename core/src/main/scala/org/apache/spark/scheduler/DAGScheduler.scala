@@ -117,7 +117,6 @@ class DAGScheduler(
     mapOutputTracker: MapOutputTrackerMaster,
     blockManagerMaster: BlockManagerMaster,
     env: SparkEnv,
-    tracingManager: TracingManager,
     clock: Clock = new SystemClock())
   extends Logging {
 
@@ -128,11 +127,13 @@ class DAGScheduler(
       sc.listenerBus,
       sc.env.mapOutputTracker.asInstanceOf[MapOutputTrackerMaster],
       sc.env.blockManager.master,
-      sc.env,
-      sc.tracingManager)
+      sc.env)
   }
 
   def this(sc: SparkContext) = this(sc, sc.taskScheduler)
+
+  // Edit by Eddie
+  private val tracingManager: TracingManager = sc.tracingManager
 
   private[spark] val metricsSource: DAGSchedulerSource = new DAGSchedulerSource(this)
 
@@ -847,7 +848,8 @@ class DAGScheduler(
     val job = new ActiveJob(jobId, finalStage, callSite, listener, properties)
     // Edit by Eddie
     // Transfer the job information to tracing server
-    tracingManager.createJob(new org.apache.spark.tracing.JobInfo(jobId, taskScheduler.applicationId()))
+    tracingManager.createJob(
+      new org.apache.spark.tracing.JobInfo(jobId, taskScheduler.applicationId()))
     clearCacheLocs()
     logInfo("Got job %s (%s) with %d output partitions".format(
       job.jobId, callSite.shortForm, partitions.length))
