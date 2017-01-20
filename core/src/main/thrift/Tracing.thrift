@@ -53,7 +53,7 @@ struct JobInfo {
 	2: string appId;
 }
 
-service JobManageMentService {
+service JobManagementService {
 	void createJob (1: JobInfo job)
 
 	void updateJobInfo(1: JobInfo job)
