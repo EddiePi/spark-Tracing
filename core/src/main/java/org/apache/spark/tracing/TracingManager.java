@@ -22,7 +22,7 @@ public class TracingManager {
 
     private SparkConf conf;
 
-    boolean isTracingEnalbed = conf.getBoolean("spark.tracing.enabled", false);
+    boolean isTracingEnalbed;
     /** the IP address of the tracing server */
     private String serverURL;
 
@@ -38,6 +38,8 @@ public class TracingManager {
         serverPort = conf.getInt("spark.tracing.port", 8089);
         transport = new TSocket(serverURL, serverPort);
         protocol = new TBinaryProtocol(transport);
+
+        isTracingEnalbed = conf.getBoolean("spark.tracing.enabled", false);
     }
 
     /** transfer a new job to the server */
