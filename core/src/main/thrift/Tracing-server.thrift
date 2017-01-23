@@ -27,13 +27,6 @@ struct StageInfo {
 	4: string appId;
 }
 
-struct StageList {
-	1: list<StageInfo> stages;
-	2: i64 submitTime;
-	3: i32 jobId;
-	4: string appId;
-}
-
 struct JobInfo {
 	1: i32 jobId;
 	2: string appId;
@@ -44,7 +37,7 @@ service TracingService {
 
 	void updateTaskInfo (1: TaskInfo task)
 
-	void createStageList (1: StageList stages)
+	void createStage (1: StageInfo stage)
 
 	void updateStageInfo (1: StageInfo stage)
 
