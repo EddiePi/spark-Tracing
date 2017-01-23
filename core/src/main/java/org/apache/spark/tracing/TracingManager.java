@@ -1,7 +1,6 @@
 package org.apache.spark.tracing;
 
 import org.apache.spark.memory.TaskMemoryManager;
-import org.apache.spark.scheduler.*;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -22,7 +21,7 @@ public class TracingManager {
 
     private SparkConf conf;
 
-    boolean isTracingEnalbed;
+    boolean isTracingEnabled;
     /** the IP address of the tracing server */
     private String serverURL;
 
@@ -39,14 +38,14 @@ public class TracingManager {
         transport = new TSocket(serverURL, serverPort);
         protocol = new TBinaryProtocol(transport);
 
-        isTracingEnalbed = conf.getBoolean("spark.tracing.enabled", false);
+        isTracingEnabled = conf.getBoolean("spark.tracing.enabled", false);
     }
 
     /** establish connection */
 
     /** transfer a new job to the server */
     public void createJob(JobInfo jobInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
@@ -66,7 +65,7 @@ public class TracingManager {
     }
 
     public void updateJobInfo(JobInfo jobInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
@@ -87,7 +86,7 @@ public class TracingManager {
 
     /** transfer new stages to the server */
     public void createStageList(StageList stageList) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
@@ -108,7 +107,7 @@ public class TracingManager {
 
     /** update the status of a stage */
     public void updateStageInfo(StageInfo stageInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
@@ -129,7 +128,7 @@ public class TracingManager {
 
     /** transfer a new task set to the server */
     public void createNewTaskSet(TaskSetInfo taskSetInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
@@ -150,7 +149,7 @@ public class TracingManager {
 
     /** update the status of a task */
     public void updateTaskInfo(TaskInfo taskInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
