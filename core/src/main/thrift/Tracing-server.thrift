@@ -1,5 +1,3 @@
-namespace java org.apache.spark.tracing
-
 struct TaskSetInfo {
 	1: set<TaskInfo> taskSet;
 	2: i64 submitTime;
