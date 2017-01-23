@@ -22,12 +22,6 @@ struct TaskInfo {
 	10: string status;	//SUCCESSFUL, FAILED...
 }
 
-service TaskManagementService {
-	void createTaskSet (1: TaskSetInfo taskSet)
-
-	void updateTaskInfo (1: TaskInfo task)
-}
-
 struct StageInfo {
 	1: i32 stageId;
 	2: string type;	//ShuffleMap or Final stage
@@ -42,18 +36,20 @@ struct StageList {
 	4: string appId;
 }
 
-service StageManagementService {
-	void createStageList (1: StageList stages)
-
-	void updateStageInfo (1: StageInfo stage)
-}
-
 struct JobInfo {
 	1: i32 jobId;
 	2: string appId;
 }
 
-service JobManagementService {
+service TracingService {
+	void createTaskSet (1: TaskSetInfo taskSet)
+
+	void updateTaskInfo (1: TaskInfo task)
+
+	void createStageList (1: StageList stages)
+
+	void updateStageInfo (1: StageInfo stage)
+
 	void createJob (1: JobInfo job)
 
 	void updateJobInfo(1: JobInfo job)
