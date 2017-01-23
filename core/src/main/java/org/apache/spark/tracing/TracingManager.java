@@ -1,7 +1,6 @@
 package org.apache.spark.tracing;
 
 import org.apache.spark.memory.TaskMemoryManager;
-import org.apache.spark.scheduler.*;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -22,7 +21,7 @@ public class TracingManager {
 
     private SparkConf conf;
 
-    boolean isTracingEnalbed;
+    boolean isTracingEnabled;
     /** the IP address of the tracing server */
     private String serverURL;
 
@@ -39,18 +38,20 @@ public class TracingManager {
         transport = new TSocket(serverURL, serverPort);
         protocol = new TBinaryProtocol(transport);
 
-        isTracingEnalbed = conf.getBoolean("spark.tracing.enabled", false);
+        isTracingEnabled = conf.getBoolean("spark.tracing.enabled", false);
     }
+
+    /** establish connection */
 
     /** transfer a new job to the server */
     public void createJob(JobInfo jobInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            JobManagementService.Client jClient = new JobManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            jClient.createJob(jobInfo);
+            tClient.createJob(jobInfo);
 
         } catch (TTransportException e) {
             e.printStackTrace();
@@ -64,13 +65,13 @@ public class TracingManager {
     }
 
     public void updateJobInfo(JobInfo jobInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            JobManagementService.Client jClient = new JobManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            jClient.updateJobInfo(jobInfo);
+            tClient.updateJobInfo(jobInfo);
 
         } catch (TTransportException e) {
             e.printStackTrace();
@@ -85,13 +86,13 @@ public class TracingManager {
 
     /** transfer new stages to the server */
     public void createStageList(StageList stageList) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            StageManagementService.Client sClient = new StageManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            sClient.createStageList(stageList);
+            tClient.createStageList(stageList);
 
         } catch (TTransportException e) {
             e.printStackTrace();
@@ -106,13 +107,13 @@ public class TracingManager {
 
     /** update the status of a stage */
     public void updateStageInfo(StageInfo stageInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            StageManagementService.Client sClient = new StageManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            sClient.updateStageInfo(stageInfo);
+            tClient.updateStageInfo(stageInfo);
 
         } catch (TTransportException e) {
             e.printStackTrace();
@@ -127,11 +128,11 @@ public class TracingManager {
 
     /** transfer a new task set to the server */
     public void createNewTaskSet(TaskSetInfo taskSetInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            TaskManagementService.Client tClient = new TaskManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.createTaskSet(taskSetInfo);
 
@@ -148,11 +149,11 @@ public class TracingManager {
 
     /** update the status of a task */
     public void updateTaskInfo(TaskInfo taskInfo) {
-        if (!isTracingEnalbed) {
+        if (!isTracingEnabled) {
             return;
         }
         try {
-            TaskManagementService.Client tClient = new TaskManagementService.Client(protocol);
+            TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.updateTaskInfo(taskInfo);
 
