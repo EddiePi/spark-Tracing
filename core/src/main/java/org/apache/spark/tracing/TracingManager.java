@@ -126,27 +126,6 @@ public class TracingManager {
         }
     }
 
-    /** transfer a new task set to the server */
-    public void createNewTaskSet(TaskSetInfo taskSetInfo) {
-        if (!isTracingEnabled) {
-            return;
-        }
-        try {
-            TracingService.Client tClient = new TracingService.Client(protocol);
-            transport.open();
-            tClient.createTaskSet(taskSetInfo);
-
-        } catch (TTransportException e) {
-            e.printStackTrace();
-        } catch (TException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != transport) {
-                transport.close();
-            }
-        }
-    }
-
     /** update the status of a task */
     public void updateTaskInfo(TaskInfo taskInfo) {
         if (!isTracingEnabled) {
