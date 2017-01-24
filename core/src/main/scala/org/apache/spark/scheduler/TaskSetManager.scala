@@ -85,7 +85,7 @@ private[spark] class TaskSetManager(
   var calculatedTasks = 0
 
   // Edit by Eddie
-  val tracingManager: TracingManager = SparkContext.getOrCreate().tracingManager
+  val tracingManager: TracingManager = env.tracingManager
 
   private val taskSetBlacklistHelperOpt: Option[TaskSetBlacklist] = {
     if (BlacklistTracker.isBlacklistEnabled(conf)) {

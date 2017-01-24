@@ -136,7 +136,7 @@ private[spark] class Executor(
   startDriverHeartbeater()
 
   // Edit by Eddie
-  private val taskTracingManager: TracingManager = new TracingManager(env.conf)
+  private val taskTracingManager: TracingManager = env.tracingManager
 
   def launchTask(
       context: ExecutorBackend,

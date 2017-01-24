@@ -54,7 +54,6 @@ import org.apache.spark.scheduler.cluster.{CoarseGrainedSchedulerBackend, Standa
 import org.apache.spark.scheduler.local.LocalSchedulerBackend
 import org.apache.spark.storage._
 import org.apache.spark.storage.BlockManagerMessages.TriggerThreadDump
-import org.apache.spark.tracing.TracingManager
 import org.apache.spark.ui.{ConsoleProgressBar, SparkUI}
 import org.apache.spark.ui.jobs.JobProgressListener
 import org.apache.spark.util._
@@ -215,8 +214,6 @@ class SparkContext(config: SparkConf) extends Logging {
   private var _files: Seq[String] = _
   private var _shutdownHookRef: AnyRef = _
 
-  // Edit by Eddie
-  private var _tracingManager: TracingManager = _
 
   /* ------------------------------------------------------------------------------------- *
    | Accessors and public fields. These provide access to the internal state of the        |
@@ -295,10 +292,6 @@ class SparkContext(config: SparkConf) extends Logging {
 
   // Set SPARK_USER for user who is running SparkContext.
   val sparkUser = Utils.getCurrentUserName()
-
-  // Edit by Eddie
-  // initialize tracing manager
-  private[spark] def tracingManager: TracingManager = _tracingManager
 
   private[spark] def schedulerBackend: SchedulerBackend = _schedulerBackend
 
@@ -502,11 +495,6 @@ class SparkContext(config: SparkConf) extends Logging {
     // retrieve "HeartbeatReceiver" in the constructor. (SPARK-6640)
     _heartbeatReceiver = env.rpcEnv.setupEndpoint(
       HeartbeatReceiver.ENDPOINT_NAME, new HeartbeatReceiver(this))
-
-    // Edit by Eddie
-    // Create the TracingManager
-    _tracingManager = new TracingManager(_conf)
-
 
     // Create and start the scheduler
     val (sched, ts) = SparkContext.createTaskScheduler(this, master, deployMode)

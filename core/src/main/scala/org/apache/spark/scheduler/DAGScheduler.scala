@@ -133,7 +133,7 @@ class DAGScheduler(
   def this(sc: SparkContext) = this(sc, sc.taskScheduler)
 
   // Edit by Eddie
-  private val tracingManager: TracingManager = sc.tracingManager
+  private val tracingManager: TracingManager = env.tracingManager
 
   private[spark] val metricsSource: DAGSchedulerSource = new DAGSchedulerSource(this)
 
@@ -921,12 +921,16 @@ class DAGScheduler(
         logDebug("missing: " + missing)
         if (missing.isEmpty) {
           logInfo("Submitting " + stage + " (" + stage.rdd + "), which has no missing parents")
+
+          // Edit by Eddie
+          // create running stage
           tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
             stage.id,
             stage match {case s: ResultStage => "result"
             case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
             taskScheduler.applicationId(),
+            "RUNNING",
             0
           ))
           submitMissingTasks(stage, jobId.get)
@@ -935,12 +939,16 @@ class DAGScheduler(
             submitStage(parent)
           }
           waitingStages += stage
+
+          // Edit by Eddie
+          // create waiting stage
           tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
             stage.id,
             stage match {case s: ResultStage => "result"
             case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
             taskScheduler.applicationId(),
+            "WAITING",
             0
           ))
         }

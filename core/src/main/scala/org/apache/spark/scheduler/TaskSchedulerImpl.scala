@@ -132,7 +132,7 @@ private[spark] class TaskSchedulerImpl(
   private[spark] var taskResultGetter = new TaskResultGetter(sc.env, this)
 
   // Edit by Eddie
-  val tracingManager: TracingManager = sc.tracingManager
+  val tracingManager: TracingManager = sc.env.tracingManager
 
   override def setDAGScheduler(dagScheduler: DAGScheduler) {
     this.dagScheduler = dagScheduler
