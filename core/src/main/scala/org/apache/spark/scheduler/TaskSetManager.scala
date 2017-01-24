@@ -480,7 +480,6 @@ private[spark] class TaskSetManager(
           s"partition ${task.partitionId}, $taskLocality, ${serializedTask.limit} bytes)")
 
         sched.dagScheduler.taskStarted(task, info)
-        env.isTraceEnabled()
         tracingManager.createOrUpdateTaskInfo(
           new org.apache.spark.tracing.TaskInfo(
             taskId,
