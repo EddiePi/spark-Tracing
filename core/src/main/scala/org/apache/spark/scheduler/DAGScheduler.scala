@@ -40,7 +40,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.storage._
 import org.apache.spark.storage.BlockManagerMessages.BlockManagerHeartbeat
-import org.apache.spark.tracing.TracingManager
+import org.apache.spark.tracing._
 import org.apache.spark.util._
 
 /**
@@ -927,6 +927,13 @@ class DAGScheduler(
             submitStage(parent)
           }
           waitingStages += stage
+          tracingManager.createStage(new org.apache.spark.tracing.StageInfo(
+            stage.id,
+            stage match {case s: ResultStage => "result"
+                         case s: ShuffleMapStage => "shuffle"},
+            stage.firstJobId,
+            taskScheduler.applicationId()
+          ))
         }
       }
     } else {

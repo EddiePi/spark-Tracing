@@ -85,14 +85,14 @@ public class TracingManager {
     }
 
     /** transfer new stages to the server */
-    public void createStageList(StageList stageList) {
+    public void createStage(StageInfo stage) {
         if (!isTracingEnabled) {
             return;
         }
         try {
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.createStageList(stageList);
+            tClient.createStage(stage);
 
         } catch (TTransportException e) {
             e.printStackTrace();

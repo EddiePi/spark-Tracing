@@ -43,7 +43,7 @@ public class TracingService {
 
     public void updateTaskInfo(TaskInfo task) throws TException;
 
-    public void createStageList(StageList stages) throws TException;
+    public void createStage(StageInfo stage) throws TException;
 
     public void updateStageInfo(StageInfo stage) throws TException;
 
@@ -59,7 +59,7 @@ public class TracingService {
 
     public void updateTaskInfo(TaskInfo task, AsyncMethodCallback resultHandler) throws TException;
 
-    public void createStageList(StageList stages, AsyncMethodCallback resultHandler) throws TException;
+    public void createStage(StageInfo stage, AsyncMethodCallback resultHandler) throws TException;
 
     public void updateStageInfo(StageInfo stage, AsyncMethodCallback resultHandler) throws TException;
 
@@ -129,23 +129,23 @@ public class TracingService {
       return;
     }
 
-    public void createStageList(StageList stages) throws TException
+    public void createStage(StageInfo stage) throws TException
     {
-      send_createStageList(stages);
-      recv_createStageList();
+      send_createStage(stage);
+      recv_createStage();
     }
 
-    public void send_createStageList(StageList stages) throws TException
+    public void send_createStage(StageInfo stage) throws TException
     {
-      createStageList_args args = new createStageList_args();
-      args.setStages(stages);
-      sendBase("createStageList", args);
+      createStage_args args = new createStage_args();
+      args.setStage(stage);
+      sendBase("createStage", args);
     }
 
-    public void recv_createStageList() throws TException
+    public void recv_createStage() throws TException
     {
-      createStageList_result result = new createStageList_result();
-      receiveBase(result, "createStageList");
+      createStage_result result = new createStage_result();
+      receiveBase(result, "createStage");
       return;
     }
 
@@ -291,24 +291,24 @@ public class TracingService {
       }
     }
 
-    public void createStageList(StageList stages, AsyncMethodCallback resultHandler) throws TException {
+    public void createStage(StageInfo stage, AsyncMethodCallback resultHandler) throws TException {
       checkReady();
-      createStageList_call method_call = new createStageList_call(stages, resultHandler, this, ___protocolFactory, ___transport);
+      createStage_call method_call = new createStage_call(stage, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
-    public static class createStageList_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private StageList stages;
-      public createStageList_call(StageList stages, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
+    public static class createStage_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private StageInfo stage;
+      public createStage_call(StageInfo stage, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
         super(client, protocolFactory, transport, resultHandler, false);
-        this.stages = stages;
+        this.stage = stage;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createStageList", org.apache.thrift.protocol.TMessageType.CALL, 0));
-        createStageList_args args = new createStageList_args();
-        args.setStages(stages);
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createStage", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        createStage_args args = new createStage_args();
+        args.setStage(stage);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -319,7 +319,7 @@ public class TracingService {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_createStageList();
+        (new Client(prot)).recv_createStage();
       }
     }
 
@@ -434,7 +434,7 @@ public class TracingService {
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
       processMap.put("createTaskSet", new createTaskSet());
       processMap.put("updateTaskInfo", new updateTaskInfo());
-      processMap.put("createStageList", new createStageList());
+      processMap.put("createStage", new createStage());
       processMap.put("updateStageInfo", new updateStageInfo());
       processMap.put("createJob", new createJob());
       processMap.put("updateJobInfo", new updateJobInfo());
@@ -481,22 +481,22 @@ public class TracingService {
       }
     }
 
-    public static class createStageList<I extends Iface> extends org.apache.thrift.ProcessFunction<I, createStageList_args> {
-      public createStageList() {
-        super("createStageList");
+    public static class createStage<I extends Iface> extends org.apache.thrift.ProcessFunction<I, createStage_args> {
+      public createStage() {
+        super("createStage");
       }
 
-      public createStageList_args getEmptyArgsInstance() {
-        return new createStageList_args();
+      public createStage_args getEmptyArgsInstance() {
+        return new createStage_args();
       }
 
       protected boolean isOneway() {
         return false;
       }
 
-      public createStageList_result getResult(I iface, createStageList_args args) throws TException {
-        createStageList_result result = new createStageList_result();
-        iface.createStageList(args.stages);
+      public createStage_result getResult(I iface, createStage_args args) throws TException {
+        createStage_result result = new createStage_result();
+        iface.createStage(args.stage);
         return result;
       }
     }
@@ -576,7 +576,7 @@ public class TracingService {
     private static <I extends AsyncIface> Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase,?>> getProcessMap(Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
       processMap.put("createTaskSet", new createTaskSet());
       processMap.put("updateTaskInfo", new updateTaskInfo());
-      processMap.put("createStageList", new createStageList());
+      processMap.put("createStage", new createStage());
       processMap.put("updateStageInfo", new updateStageInfo());
       processMap.put("createJob", new createJob());
       processMap.put("updateJobInfo", new updateJobInfo());
@@ -683,20 +683,20 @@ public class TracingService {
       }
     }
 
-    public static class createStageList<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, createStageList_args, Void> {
-      public createStageList() {
-        super("createStageList");
+    public static class createStage<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, createStage_args, Void> {
+      public createStage() {
+        super("createStage");
       }
 
-      public createStageList_args getEmptyArgsInstance() {
-        return new createStageList_args();
+      public createStage_args getEmptyArgsInstance() {
+        return new createStage_args();
       }
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<Void>() { 
           public void onComplete(Void o) {
-            createStageList_result result = new createStageList_result();
+            createStage_result result = new createStage_result();
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -708,7 +708,7 @@ public class TracingService {
           public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
-            createStageList_result result = new createStageList_result();
+            createStage_result result = new createStage_result();
             {
               msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
               msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
@@ -728,8 +728,8 @@ public class TracingService {
         return false;
       }
 
-      public void start(I iface, createStageList_args args, AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.createStageList(args.stages,resultHandler);
+      public void start(I iface, createStage_args args, AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.createStage(args.stage,resultHandler);
       }
     }
 
@@ -2113,22 +2113,22 @@ public class TracingService {
 
   }
 
-  public static class createStageList_args implements org.apache.thrift.TBase<createStageList_args, createStageList_args._Fields>, java.io.Serializable, Cloneable, Comparable<createStageList_args>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createStageList_args");
+  public static class createStage_args implements org.apache.thrift.TBase<createStage_args, createStage_args._Fields>, java.io.Serializable, Cloneable, Comparable<createStage_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createStage_args");
 
-    private static final org.apache.thrift.protocol.TField STAGES_FIELD_DESC = new org.apache.thrift.protocol.TField("stages", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField STAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("stage", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new createStageList_argsStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new createStageList_argsTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new createStage_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new createStage_argsTupleSchemeFactory());
     }
 
-    public StageList stages; // required
+    public StageInfo stage; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      STAGES((short)1, "stages");
+      STAGE((short)1, "stage");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -2143,8 +2143,8 @@ public class TracingService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // STAGES
-            return STAGES;
+          case 1: // STAGE
+            return STAGE;
           default:
             return null;
         }
@@ -2188,71 +2188,71 @@ public class TracingService {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.STAGES, new org.apache.thrift.meta_data.FieldMetaData("stages", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StageList.class)));
+      tmpMap.put(_Fields.STAGE, new org.apache.thrift.meta_data.FieldMetaData("stage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, StageInfo.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createStageList_args.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createStage_args.class, metaDataMap);
     }
 
-    public createStageList_args() {
+    public createStage_args() {
     }
 
-    public createStageList_args(
-      StageList stages)
+    public createStage_args(
+      StageInfo stage)
     {
       this();
-      this.stages = stages;
+      this.stage = stage;
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public createStageList_args(createStageList_args other) {
-      if (other.isSetStages()) {
-        this.stages = new StageList(other.stages);
+    public createStage_args(createStage_args other) {
+      if (other.isSetStage()) {
+        this.stage = new StageInfo(other.stage);
       }
     }
 
-    public createStageList_args deepCopy() {
-      return new createStageList_args(this);
+    public createStage_args deepCopy() {
+      return new createStage_args(this);
     }
 
     @Override
     public void clear() {
-      this.stages = null;
+      this.stage = null;
     }
 
-    public StageList getStages() {
-      return this.stages;
+    public StageInfo getStage() {
+      return this.stage;
     }
 
-    public createStageList_args setStages(StageList stages) {
-      this.stages = stages;
+    public createStage_args setStage(StageInfo stage) {
+      this.stage = stage;
       return this;
     }
 
-    public void unsetStages() {
-      this.stages = null;
+    public void unsetStage() {
+      this.stage = null;
     }
 
-    /** Returns true if field stages is set (has been assigned a value) and false otherwise */
-    public boolean isSetStages() {
-      return this.stages != null;
+    /** Returns true if field stage is set (has been assigned a value) and false otherwise */
+    public boolean isSetStage() {
+      return this.stage != null;
     }
 
-    public void setStagesIsSet(boolean value) {
+    public void setStageIsSet(boolean value) {
       if (!value) {
-        this.stages = null;
+        this.stage = null;
       }
     }
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case STAGES:
+      case STAGE:
         if (value == null) {
-          unsetStages();
+          unsetStage();
         } else {
-          setStages((StageList)value);
+          setStage((StageInfo)value);
         }
         break;
 
@@ -2261,8 +2261,8 @@ public class TracingService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case STAGES:
-        return getStages();
+      case STAGE:
+        return getStage();
 
       }
       throw new IllegalStateException();
@@ -2275,8 +2275,8 @@ public class TracingService {
       }
 
       switch (field) {
-      case STAGES:
-        return isSetStages();
+      case STAGE:
+        return isSetStage();
       }
       throw new IllegalStateException();
     }
@@ -2285,21 +2285,21 @@ public class TracingService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof createStageList_args)
-        return this.equals((createStageList_args)that);
+      if (that instanceof createStage_args)
+        return this.equals((createStage_args)that);
       return false;
     }
 
-    public boolean equals(createStageList_args that) {
+    public boolean equals(createStage_args that) {
       if (that == null)
         return false;
 
-      boolean this_present_stages = true && this.isSetStages();
-      boolean that_present_stages = true && that.isSetStages();
-      if (this_present_stages || that_present_stages) {
-        if (!(this_present_stages && that_present_stages))
+      boolean this_present_stage = true && this.isSetStage();
+      boolean that_present_stage = true && that.isSetStage();
+      if (this_present_stage || that_present_stage) {
+        if (!(this_present_stage && that_present_stage))
           return false;
-        if (!this.stages.equals(that.stages))
+        if (!this.stage.equals(that.stage))
           return false;
       }
 
@@ -2310,28 +2310,28 @@ public class TracingService {
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
 
-      boolean present_stages = true && (isSetStages());
-      list.add(present_stages);
-      if (present_stages)
-        list.add(stages);
+      boolean present_stage = true && (isSetStage());
+      list.add(present_stage);
+      if (present_stage)
+        list.add(stage);
 
       return list.hashCode();
     }
 
     @Override
-    public int compareTo(createStageList_args other) {
+    public int compareTo(createStage_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
 
-      lastComparison = Boolean.valueOf(isSetStages()).compareTo(other.isSetStages());
+      lastComparison = Boolean.valueOf(isSetStage()).compareTo(other.isSetStage());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetStages()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.stages, other.stages);
+      if (isSetStage()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.stage, other.stage);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -2353,14 +2353,14 @@ public class TracingService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("createStageList_args(");
+      StringBuilder sb = new StringBuilder("createStage_args(");
       boolean first = true;
 
-      sb.append("stages:");
-      if (this.stages == null) {
+      sb.append("stage:");
+      if (this.stage == null) {
         sb.append("null");
       } else {
-        sb.append(this.stages);
+        sb.append(this.stage);
       }
       first = false;
       sb.append(")");
@@ -2370,8 +2370,8 @@ public class TracingService {
     public void validate() throws TException {
       // check for required fields
       // check for sub-struct validity
-      if (stages != null) {
-        stages.validate();
+      if (stage != null) {
+        stage.validate();
       }
     }
 
@@ -2391,15 +2391,15 @@ public class TracingService {
       }
     }
 
-    private static class createStageList_argsStandardSchemeFactory implements SchemeFactory {
-      public createStageList_argsStandardScheme getScheme() {
-        return new createStageList_argsStandardScheme();
+    private static class createStage_argsStandardSchemeFactory implements SchemeFactory {
+      public createStage_argsStandardScheme getScheme() {
+        return new createStage_argsStandardScheme();
       }
     }
 
-    private static class createStageList_argsStandardScheme extends StandardScheme<createStageList_args> {
+    private static class createStage_argsStandardScheme extends StandardScheme<createStage_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, createStageList_args struct) throws TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, createStage_args struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -2409,11 +2409,11 @@ public class TracingService {
             break;
           }
           switch (schemeField.id) {
-            case 1: // STAGES
+            case 1: // STAGE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-                struct.stages = new StageList();
-                struct.stages.read(iprot);
-                struct.setStagesIsSet(true);
+                struct.stage = new StageInfo();
+                struct.stage.read(iprot);
+                struct.setStageIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -2429,13 +2429,13 @@ public class TracingService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, createStageList_args struct) throws TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, createStage_args struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.stages != null) {
-          oprot.writeFieldBegin(STAGES_FIELD_DESC);
-          struct.stages.write(oprot);
+        if (struct.stage != null) {
+          oprot.writeFieldBegin(STAGE_FIELD_DESC);
+          struct.stage.write(oprot);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -2444,49 +2444,49 @@ public class TracingService {
 
     }
 
-    private static class createStageList_argsTupleSchemeFactory implements SchemeFactory {
-      public createStageList_argsTupleScheme getScheme() {
-        return new createStageList_argsTupleScheme();
+    private static class createStage_argsTupleSchemeFactory implements SchemeFactory {
+      public createStage_argsTupleScheme getScheme() {
+        return new createStage_argsTupleScheme();
       }
     }
 
-    private static class createStageList_argsTupleScheme extends TupleScheme<createStageList_args> {
+    private static class createStage_argsTupleScheme extends TupleScheme<createStage_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, createStageList_args struct) throws TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, createStage_args struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetStages()) {
+        if (struct.isSetStage()) {
           optionals.set(0);
         }
         oprot.writeBitSet(optionals, 1);
-        if (struct.isSetStages()) {
-          struct.stages.write(oprot);
+        if (struct.isSetStage()) {
+          struct.stage.write(oprot);
         }
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, createStageList_args struct) throws TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, createStage_args struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
-          struct.stages = new StageList();
-          struct.stages.read(iprot);
-          struct.setStagesIsSet(true);
+          struct.stage = new StageInfo();
+          struct.stage.read(iprot);
+          struct.setStageIsSet(true);
         }
       }
     }
 
   }
 
-  public static class createStageList_result implements org.apache.thrift.TBase<createStageList_result, createStageList_result._Fields>, java.io.Serializable, Cloneable, Comparable<createStageList_result>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createStageList_result");
+  public static class createStage_result implements org.apache.thrift.TBase<createStage_result, createStage_result._Fields>, java.io.Serializable, Cloneable, Comparable<createStage_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createStage_result");
 
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new createStageList_resultStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new createStageList_resultTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new createStage_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new createStage_resultTupleSchemeFactory());
     }
 
 
@@ -2549,20 +2549,20 @@ public class TracingService {
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createStageList_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createStage_result.class, metaDataMap);
     }
 
-    public createStageList_result() {
+    public createStage_result() {
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public createStageList_result(createStageList_result other) {
+    public createStage_result(createStage_result other) {
     }
 
-    public createStageList_result deepCopy() {
-      return new createStageList_result(this);
+    public createStage_result deepCopy() {
+      return new createStage_result(this);
     }
 
     @Override
@@ -2595,12 +2595,12 @@ public class TracingService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof createStageList_result)
-        return this.equals((createStageList_result)that);
+      if (that instanceof createStage_result)
+        return this.equals((createStage_result)that);
       return false;
     }
 
-    public boolean equals(createStageList_result that) {
+    public boolean equals(createStage_result that) {
       if (that == null)
         return false;
 
@@ -2615,7 +2615,7 @@ public class TracingService {
     }
 
     @Override
-    public int compareTo(createStageList_result other) {
+    public int compareTo(createStage_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -2639,7 +2639,7 @@ public class TracingService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("createStageList_result(");
+      StringBuilder sb = new StringBuilder("createStage_result(");
       boolean first = true;
 
       sb.append(")");
@@ -2667,15 +2667,15 @@ public class TracingService {
       }
     }
 
-    private static class createStageList_resultStandardSchemeFactory implements SchemeFactory {
-      public createStageList_resultStandardScheme getScheme() {
-        return new createStageList_resultStandardScheme();
+    private static class createStage_resultStandardSchemeFactory implements SchemeFactory {
+      public createStage_resultStandardScheme getScheme() {
+        return new createStage_resultStandardScheme();
       }
     }
 
-    private static class createStageList_resultStandardScheme extends StandardScheme<createStageList_result> {
+    private static class createStage_resultStandardScheme extends StandardScheme<createStage_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, createStageList_result struct) throws TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, createStage_result struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -2696,7 +2696,7 @@ public class TracingService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, createStageList_result struct) throws TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, createStage_result struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -2706,21 +2706,21 @@ public class TracingService {
 
     }
 
-    private static class createStageList_resultTupleSchemeFactory implements SchemeFactory {
-      public createStageList_resultTupleScheme getScheme() {
-        return new createStageList_resultTupleScheme();
+    private static class createStage_resultTupleSchemeFactory implements SchemeFactory {
+      public createStage_resultTupleScheme getScheme() {
+        return new createStage_resultTupleScheme();
       }
     }
 
-    private static class createStageList_resultTupleScheme extends TupleScheme<createStageList_result> {
+    private static class createStage_resultTupleScheme extends TupleScheme<createStage_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, createStageList_result struct) throws TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, createStage_result struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, createStageList_result struct) throws TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, createStage_result struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
       }
     }

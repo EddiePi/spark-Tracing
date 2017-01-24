@@ -25,6 +25,7 @@ struct StageInfo {
 	2: string type;	//ShuffleMap or Final stage
 	3: i32 jobId;
 	4: string appId;
+	5: i32 taskNum;
 }
 
 struct JobInfo {
