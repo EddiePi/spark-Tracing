@@ -486,8 +486,7 @@ private[spark] class TaskSetManager(
             taskId,
             stageId,
             0,
-            task.jobId match { case i: Some[Int] => i.x
-                               case i: _ => -1},
+            task.jobId.getOrElse(-1),
             task.appId,
             System.currentTimeMillis(),
             0,
