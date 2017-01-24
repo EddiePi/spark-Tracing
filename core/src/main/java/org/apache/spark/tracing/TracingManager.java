@@ -89,7 +89,7 @@ public class TracingManager {
     }
 
     /** transfer new stages to the server */
-    public void createStage(StageInfo stage) {
+    public void createOrUpdateStage(StageInfo stage) {
         if (!isTracingEnabled) {
             return;
         }

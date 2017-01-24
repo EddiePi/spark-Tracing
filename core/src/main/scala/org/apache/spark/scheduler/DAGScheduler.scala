@@ -921,16 +921,24 @@ class DAGScheduler(
         logDebug("missing: " + missing)
         if (missing.isEmpty) {
           logInfo("Submitting " + stage + " (" + stage.rdd + "), which has no missing parents")
+          tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
+            stage.id,
+            stage match {case s: ResultStage => "result"
+            case s: ShuffleMapStage => "shuffle"},
+            stage.firstJobId,
+            taskScheduler.applicationId(),
+            0
+          ))
           submitMissingTasks(stage, jobId.get)
         } else {
           for (parent <- missing) {
             submitStage(parent)
           }
           waitingStages += stage
-          tracingManager.createStage(new org.apache.spark.tracing.StageInfo(
+          tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
             stage.id,
             stage match {case s: ResultStage => "result"
-                         case s: ShuffleMapStage => "shuffle"},
+            case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
             taskScheduler.applicationId(),
             0
