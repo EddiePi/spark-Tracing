@@ -28,15 +28,10 @@ public class TracingManager {
     /** the port of the tracing server */
     private int serverPort;
 
-    private TTransport transport;
-    private TProtocol protocol;
-
     public TracingManager(SparkConf conf) {
         this.conf = conf;
         serverURL = conf.get("spark.tracing.address", "localhost");
         serverPort = conf.getInt("spark.tracing.port", 8089);
-        transport = new TSocket(serverURL, serverPort);
-        protocol = new TBinaryProtocol(transport);
 
         isTracingEnabled = conf.getBoolean("spark.tracing.enabled", false);
     }
@@ -48,7 +43,12 @@ public class TracingManager {
         if (!isTracingEnabled) {
             return;
         }
+        TTransport transport = null;
+        TProtocol protocol;
+
         try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.createJob(jobInfo);
@@ -68,7 +68,11 @@ public class TracingManager {
         if (!isTracingEnabled) {
             return;
         }
+        TTransport transport = null;
+        TProtocol protocol;
         try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.updateJobInfo(jobInfo);
@@ -89,7 +93,11 @@ public class TracingManager {
         if (!isTracingEnabled) {
             return;
         }
+        TTransport transport = null;
+        TProtocol protocol;
         try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.createStage(stage);
@@ -110,7 +118,11 @@ public class TracingManager {
         if (!isTracingEnabled) {
             return;
         }
+        TTransport transport = null;
+        TProtocol protocol;
         try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.updateStageInfo(stageInfo);
@@ -132,7 +144,11 @@ public class TracingManager {
         if (!isTracingEnabled) {
             return;
         }
+        TTransport transport = null;
+        TProtocol protocol;
         try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.updateTaskInfo(taskInfo);
@@ -147,5 +163,4 @@ public class TracingManager {
             }
         }
     }
-
 }
