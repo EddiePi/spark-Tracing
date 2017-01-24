@@ -1,14 +1,5 @@
 namespace java org.apache.spark.tracing
 
-struct TaskSetInfo {
-	1: set<TaskInfo> taskSet;
-	2: i64 submitTime;
-	3: i32 stageId;
-	4: i32 stageAttemptId;
-	5: i32 jobId;
-	6: string appId;
-}
-
 struct TaskInfo {
 	1: i64 taskId;
 	2: i32 stageId;
