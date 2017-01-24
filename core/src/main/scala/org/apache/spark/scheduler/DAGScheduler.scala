@@ -932,7 +932,8 @@ class DAGScheduler(
             stage match {case s: ResultStage => "result"
                          case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
-            taskScheduler.applicationId()
+            taskScheduler.applicationId(),
+            0
           ))
         }
       }
