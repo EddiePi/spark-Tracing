@@ -487,7 +487,7 @@ private[spark] class TaskSetManager(
             stageId,
             0,
             task.jobId.getOrElse(-1),
-            task.appId,
+            task.appId.getOrElse("unanomous-app"),
             System.currentTimeMillis(),
             0,
             0.0,
