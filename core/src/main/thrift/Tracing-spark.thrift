@@ -36,8 +36,6 @@ struct JobInfo {
 }
 
 service TracingService {
-	void createTaskSet (1: TaskSetInfo taskSet)
-
 	void updateTaskInfo (1: TaskInfo task)
 
 	void createStage (1: StageInfo stage)
