@@ -126,8 +126,9 @@ public class TracingManager {
         }
     }
 
+
     /** update the status of a task */
-    public void updateTaskInfo(TaskInfo taskInfo) {
+    public void createOrUpdateTaskInfo(TaskInfo taskInfo) {
         if (!isTracingEnabled) {
             return;
         }

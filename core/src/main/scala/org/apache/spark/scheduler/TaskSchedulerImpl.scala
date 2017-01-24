@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.collection.Set
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import scala.util.Random
-
 import org.apache.spark._
 import org.apache.spark.TaskState.TaskState
 import org.apache.spark.internal.Logging
@@ -34,6 +33,7 @@ import org.apache.spark.scheduler.SchedulingMode.SchedulingMode
 import org.apache.spark.scheduler.TaskLocality.TaskLocality
 import org.apache.spark.scheduler.local.LocalSchedulerBackend
 import org.apache.spark.storage.BlockManagerId
+import org.apache.spark.tracing.TracingManager
 import org.apache.spark.util.{AccumulatorV2, ThreadUtils, Utils}
 
 /**
@@ -116,7 +116,9 @@ private[spark] class TaskSchedulerImpl(
   val mapOutputTracker = SparkEnv.get.mapOutputTracker
 
   var schedulableBuilder: SchedulableBuilder = null
+
   var rootPool: Pool = null
+
   // default scheduler is FIFO
   private val schedulingModeConf = conf.get("spark.scheduler.mode", "FIFO")
   val schedulingMode: SchedulingMode = try {
@@ -128,6 +130,9 @@ private[spark] class TaskSchedulerImpl(
 
   // This is a var so that we can reset it for testing purposes.
   private[spark] var taskResultGetter = new TaskResultGetter(sc.env, this)
+
+  // Edit by Eddie
+  val tracingManager: TracingManager = sc.tracingManager
 
   override def setDAGScheduler(dagScheduler: DAGScheduler) {
     this.dagScheduler = dagScheduler

@@ -1057,6 +1057,7 @@ class DAGScheduler(
       taskScheduler.submitTasks(new TaskSet(
         tasks.toArray, stage.id, stage.latestInfo.attemptId, jobId, properties))
       stage.latestInfo.submissionTime = Some(clock.getTimeMillis())
+
       // Edit by Eddie
       // update stage info when submitting TaskSet.
       tracingManager.updateStageInfo(

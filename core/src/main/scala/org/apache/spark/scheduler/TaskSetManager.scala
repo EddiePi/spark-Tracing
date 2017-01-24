@@ -25,11 +25,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import scala.math.{max, min}
 import scala.util.control.NonFatal
-
 import org.apache.spark._
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.SchedulingMode._
 import org.apache.spark.TaskState.TaskState
+import org.apache.spark.tracing._
 import org.apache.spark.util.{AccumulatorV2, Clock, SystemClock, Utils}
 
 /**
@@ -83,6 +83,9 @@ private[spark] class TaskSetManager(
   var parent: Pool = null
   var totalResultSize = 0L
   var calculatedTasks = 0
+
+  // Edit by Eddie
+  val tracingManager: TracingManager = SparkContext.getOrCreate().tracingManager
 
   private val taskSetBlacklistHelperOpt: Option[TaskSetBlacklist] = {
     if (BlacklistTracker.isBlacklistEnabled(conf)) {
@@ -477,6 +480,20 @@ private[spark] class TaskSetManager(
           s"partition ${task.partitionId}, $taskLocality, ${serializedTask.limit} bytes)")
 
         sched.dagScheduler.taskStarted(task, info)
+        env.isTraceEnabled()
+        tracingManager.createOrUpdateTaskInfo(
+          new org.apache.spark.tracing.TaskInfo(
+            taskId,
+            stageId,
+            0,
+            task.jobId match { case i: Some[Int] => i.x
+                               case i: _ => -1},
+            task.appId,
+            System.currentTimeMillis(),
+            0,
+            0.0,
+            0,
+          "RUNNING"))
         new TaskDescription(taskId = taskId, attemptNumber = attemptNum, execId,
           taskName, index, serializedTask)
       }
