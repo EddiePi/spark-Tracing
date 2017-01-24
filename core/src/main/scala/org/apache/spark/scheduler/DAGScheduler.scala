@@ -1056,6 +1056,15 @@ class DAGScheduler(
       taskScheduler.submitTasks(new TaskSet(
         tasks.toArray, stage.id, stage.latestInfo.attemptId, jobId, properties))
       stage.latestInfo.submissionTime = Some(clock.getTimeMillis())
+      // Edit by Eddie
+      // update stage info when submitting TaskSet.
+      tracingManager.updateStageInfo(
+        new org.apache.spark.tracing.StageInfo(
+          stage.id,
+          null,
+          jobId,
+          taskScheduler.applicationId(),
+          tasks.size))
     } else {
       // Because we posted SparkListenerStageSubmitted earlier, we should mark
       // the stage as completed here in case there are no tasks to run
