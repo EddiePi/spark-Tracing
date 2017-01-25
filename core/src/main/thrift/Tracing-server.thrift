@@ -1,3 +1,5 @@
+namespace java RPCService
+
 struct TaskInfo {
 	1: i64 taskId;
 	2: i32 stageId;

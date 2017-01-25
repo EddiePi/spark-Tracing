@@ -134,6 +134,8 @@ private[spark] abstract class Task[T](
     this.taskMemoryManager = taskMemoryManager
   }
 
+  def getTaskMemoryMananger: TaskMemoryManager = taskMemoryManager
+
   def runTask(context: TaskContext): T
 
   def preferredLocations: Seq[TaskLocation] = Nil

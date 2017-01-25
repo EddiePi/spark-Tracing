@@ -36,9 +36,11 @@ import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.scheduler.{AccumulableInfo, DirectTaskResult, IndirectTaskResult, Task}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
-import org.apache.spark.tracing.TracingManager
+import org.apache.spark.tracing.{TaskInfo, TracingManager}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
+
+import scala.collection.mutable
 
 /**
  * Spark executor, backed by a threadpool to run tasks.
@@ -116,6 +118,10 @@ private[spark] class Executor(
   // Executor for the heartbeat task.
   private val heartbeater = ThreadUtils.newDaemonSingleThreadScheduledExecutor("driver-heartbeater")
 
+  // Edit by Eddie
+  // Tracing heartbeat
+  private val tracingHeartbeater = ThreadUtils.newDaemonSingleThreadScheduledExecutor("tracing-heartbeater")
+
   // must be initialized before running startDriverHeartbeat()
   private val heartbeatReceiverRef =
     RpcUtils.makeDriverRef(HeartbeatReceiver.ENDPOINT_NAME, conf, env.rpcEnv)
@@ -136,7 +142,10 @@ private[spark] class Executor(
   startDriverHeartbeater()
 
   // Edit by Eddie
-  private val taskTracingManager: TracingManager = env.tracingManager
+  startTracingHeartbeater()
+
+  // Edit by Eddie
+  private val tracingManager: TracingManager = env.tracingManager
 
   def launchTask(
       context: ExecutorBackend,
@@ -212,6 +221,8 @@ private[spark] class Executor(
      */
     @volatile var task: Task[Any] = _
 
+    var state: String = _
+
     def kill(interruptThread: Boolean): Unit = {
       logInfo(s"Executor is trying to kill $taskName (TID $taskId)")
       killed = true
@@ -235,6 +246,11 @@ private[spark] class Executor(
       Thread.interrupted()
     }
 
+    // Edit by Eddie
+    // move this variable out of run()
+    var taskStart: Long = 0
+    var taskStartCpu: Long = 0
+
     override def run(): Unit = {
       val threadMXBean = ManagementFactory.getThreadMXBean
       val taskMemoryManager = new TaskMemoryManager(env.memoryManager, taskId)
@@ -246,8 +262,10 @@ private[spark] class Executor(
       val ser = env.closureSerializer.newInstance()
       logInfo(s"Running $taskName (TID $taskId)")
       execBackend.statusUpdate(taskId, TaskState.RUNNING, EMPTY_BYTE_BUFFER)
-      var taskStart: Long = 0
-      var taskStartCpu: Long = 0
+      // Edit by Eddie
+      state = TaskState.RUNNING.toString
+
+
       startGCTime = computeTotalGcTime()
 
       try {
@@ -377,21 +395,29 @@ private[spark] class Executor(
           val reason = ffe.toTaskFailedReason
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, ser.serialize(reason))
+          // Edit by Eddie
+          state = TaskState.FAILED.toString
 
         case _: TaskKilledException =>
           logInfo(s"Executor killed $taskName (TID $taskId)")
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.KILLED, ser.serialize(TaskKilled))
+          // Edit by Eddie
+          state = TaskState.KILLED.toString
 
         case _: InterruptedException if task.killed =>
           logInfo(s"Executor interrupted and killed $taskName (TID $taskId)")
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.KILLED, ser.serialize(TaskKilled))
+          // Edit by Eddie
+          state = TaskState.KILLED.toString
 
         case CausedBy(cDE: CommitDeniedException) =>
           val reason = cDE.toTaskFailedReason
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, ser.serialize(reason))
+          // Edit by Eddie
+          state = TaskState.FAILED.toString
 
         case t: Throwable =>
           // Attempt to exit cleanly by informing the driver of our failure.
@@ -422,6 +448,8 @@ private[spark] class Executor(
           }
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, serializedTaskEndReason)
+          // Edit by Eddie
+          state = TaskState.FAILED.toString
 
           // Don't forcibly exit unless the exception was inherently fatal, to avoid
           // stopping other tasks unnecessarily.
@@ -571,6 +599,54 @@ private[spark] class Executor(
       override def run(): Unit = Utils.logUncaughtExceptions(reportHeartBeat())
     }
     heartbeater.scheduleAtFixedRate(heartbeatTask, initialDelay, intervalMs, TimeUnit.MILLISECONDS)
+  }
+
+
+  // Edit by Eddie
+  /**
+    * collect and prepare the task tracing information
+    */
+  private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
+    val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
+    for (taskRunner <- runningTasks.values().asScala) {
+      val taskInfo = new TaskInfo(
+        taskRunner.taskId,
+        taskRunner.task.stageId,
+        taskRunner.task.appAttemptId.getOrElse(-1),
+        taskRunner.task.jobId.getOrElse(-1),
+        taskRunner.task.appId.getOrElse("unanomous-app"),
+        if (taskRunner.taskStart != 0) {
+          taskRunner.taskStart
+        } else -1L,
+        -1.0,
+        0.0,
+        taskRunner.task.getTaskMemoryMananger.getMemoryConsumptionForThisTask,
+        taskRunner.state)
+      taskSet.add(taskInfo)
+    }
+    taskSet
+  }
+
+  // Edit by Eddie
+  private def reportTracingHeartbeat(): Unit = {
+    val taskSet = prepareRunningTaskTracingInfo()
+    for (taskInfo <- taskSet) {
+      tracingManager.createOrUpdateTaskInfo(taskInfo)
+    }
+  }
+
+  // Edit by Eddie
+  private def startTracingHeartbeater(): Unit = {
+    val intervalMs = conf.getTimeAsMs("spark.tracing.heartbeatInterval", "2s")
+
+    // Wait a random interval so the heartbeats don't end up in sync
+    val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
+
+    val heartbeatTask = new Runnable() {
+      override def run(): Unit = Utils.logUncaughtExceptions(reportTracingHeartbeat())
+    }
+    tracingHeartbeater.scheduleAtFixedRate(
+      heartbeatTask, initialDelay, intervalMs, TimeUnit.MILLISECONDS)
   }
 }
 
