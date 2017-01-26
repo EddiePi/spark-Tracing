@@ -146,6 +146,7 @@ private[spark] class Executor(
 
   // Edit by Eddie
   private val tracingManager: TracingManager = env.tracingManager
+  private val taskCpuProfiler = new ThreadCpuProfiler(conf)
 
   def launchTask(
       context: ExecutorBackend,
@@ -246,10 +247,14 @@ private[spark] class Executor(
       Thread.interrupted()
     }
 
+    private def registerRunner(): Unit = {
+
+    }
+
     // Edit by Eddie
-    // move this variable out of run()
+    var runnableThreadId: Long = _
+    // move out of run()
     var taskStart: Long = 0
-    var taskStartCpu: Long = 0
 
     override def run(): Unit = {
       val threadMXBean = ManagementFactory.getThreadMXBean
@@ -265,9 +270,12 @@ private[spark] class Executor(
       // Edit by Eddie
       state = TaskState.RUNNING.toString
 
-
       startGCTime = computeTotalGcTime()
+      // Edit by Eddie
+      runnableThreadId = Thread.currentThread().getId
+      taskCpuProfiler.registerTask(taskId, runnableThreadId)
 
+      var taskStartCpu: Long = 0
       try {
         val (taskFiles, taskJars, taskProps, taskBytes) =
           Task.deserializeWithDependencies(serializedTask)
@@ -459,6 +467,9 @@ private[spark] class Executor(
 
       } finally {
         runningTasks.remove(taskId)
+
+        // Edit by Eddie
+        taskCpuProfiler.unregisterTask(taskId, runnableThreadId)
       }
     }
   }
@@ -619,7 +630,7 @@ private[spark] class Executor(
           taskRunner.taskStart
         } else -1L,
         -1,
-        0.0,
+        taskCpuProfiler.getTaskCpuUsage(taskRunner.taskId),
         taskRunner.task.getTaskMemoryMananger.getMemoryConsumptionForThisTask,
         taskRunner.state)
       taskSet.add(taskInfo)
