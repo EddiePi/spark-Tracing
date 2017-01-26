@@ -612,13 +612,13 @@ private[spark] class Executor(
       val taskInfo = new TaskInfo(
         taskRunner.taskId,
         taskRunner.task.stageId,
-        taskRunner.task.appAttemptId.getOrElse(-1),
+        -1,
         taskRunner.task.jobId.getOrElse(-1),
-        taskRunner.task.appId.getOrElse("unanomous-app"),
+        taskRunner.task.appId.getOrElse("unanimous-app"),
         if (taskRunner.taskStart != 0) {
           taskRunner.taskStart
         } else -1L,
-        -1.0,
+        -1,
         0.0,
         taskRunner.task.getTaskMemoryMananger.getMemoryConsumptionForThisTask,
         taskRunner.state)
