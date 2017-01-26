@@ -1082,6 +1082,7 @@ class DAGScheduler(
           null,
           jobId,
           taskScheduler.applicationId(),
+          "SUBMITTED",
           tasks.size))
     } else {
       // Because we posted SparkListenerStageSubmitted earlier, we should mark
