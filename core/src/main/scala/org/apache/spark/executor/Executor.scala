@@ -642,6 +642,7 @@ private[spark] class Executor(
   private def reportTracingHeartbeat(): Unit = {
     val taskSet = prepareRunningTaskTracingInfo()
     for (taskInfo <- taskSet) {
+      logDebug("reporting tracing heartbeat. Size of taskSet is: " + taskSet.size)
       tracingManager.createOrUpdateTaskInfo(taskInfo)
     }
   }

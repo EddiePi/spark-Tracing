@@ -9,11 +9,12 @@ import java.lang.management.ManagementFactory
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 
 import org.apache.spark.SparkConf
+import org.apache.spark.internal.Logging
 import org.apache.spark.util.{ThreadUtils, Utils}
 
 
 
-class ThreadCpuProfiler (val conf: SparkConf) {
+class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
   private val taskIdToThreadId = new ConcurrentHashMap[Long, Long]()
 
   // these three need to be updated every interval
@@ -38,12 +39,14 @@ class ThreadCpuProfiler (val conf: SparkConf) {
 
   // called only after the task is started
   @volatile def registerTask(taskId: Long, threadId: Long): Unit = {
+    logDebug("registered task: " + taskId + " thread: " + threadId)
     taskIdToThreadId.put(taskId, threadId)
     threadIdToPrevCpuTime.put(threadId, threadMXBean.getCurrentThreadCpuTime)
     taskIdToCpuUsage.put(taskId, 0D)
   }
 
   @volatile def unregisterTask(taskId: Long, threadId: Long): Unit = {
+    logDebug("unregistered task: " + taskId + " thread: " + threadId)
     if (taskIdToThreadId.get(taskId) == threadId && threadIdToPrevCpuTime.containsKey(threadId)) {
       unreportedTaskIdToCpuUsage.put(taskId, profileOneTaskCpuUsage(taskId))
     }
@@ -67,6 +70,7 @@ class ThreadCpuProfiler (val conf: SparkConf) {
 
     // calculate the cpu usage for each thread
     val keyIterator = taskIdToThreadId.keys()
+    logDebug("number of keys: " + taskIdToThreadId.size())
     while (keyIterator.hasMoreElements) {
       taskIdToCpuUsage.put(keyIterator.nextElement(),
         profileOneTaskCpuUsage(keyIterator.nextElement()))
@@ -75,6 +79,7 @@ class ThreadCpuProfiler (val conf: SparkConf) {
 
   @volatile private def profileOneTaskCpuUsage (taskId: Long): Double = {
     if (taskIdToThreadId.containsKey(taskId)) {
+      logDebug("profiling cpu usage for task: " + taskId)
       val threadId = taskIdToThreadId.get(taskId)
       val curTime: Double = System.currentTimeMillis() * 1000000D
       val elapsedTime = curTime - prevTime
@@ -92,7 +97,7 @@ class ThreadCpuProfiler (val conf: SparkConf) {
   }
 
   private def startCpuProfileExecutor (): Unit = {
-    val intervalMs = conf.getTimeAsMs("spark.tracing.heartbeatInterval", "2s")
+    val intervalMs = profileInterval
 
     // Wait a random interval so the heartbeats don't end up in sync
     val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
