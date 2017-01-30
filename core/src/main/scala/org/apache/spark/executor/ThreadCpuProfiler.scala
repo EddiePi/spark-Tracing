@@ -66,8 +66,10 @@ class ThreadCpuProfiler (val conf: SparkConf) {
   private def profileAllTasksCpuUsage(): Unit = {
 
     // calculate the cpu usage for each thread
-    for (taskId <- taskIdToThreadId.keySet()) {
-      taskIdToCpuUsage.put(taskId, profileOneTaskCpuUsage(taskId))
+    val keyIterator = taskIdToThreadId.keys()
+    while (keyIterator.hasMoreElements) {
+      taskIdToCpuUsage.put(keyIterator.nextElement(),
+        profileOneTaskCpuUsage(keyIterator.nextElement()))
     }
   }
 
