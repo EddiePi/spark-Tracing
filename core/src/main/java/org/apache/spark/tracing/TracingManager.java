@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * Created by Eddie on 2017/1/18.
  */
 public class TracingManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TaskMemoryManager.class);
 
     private SparkConf conf;
@@ -51,7 +51,7 @@ public class TracingManager {
             protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.createJob(jobInfo);
+            tClient.updateJobInfo(jobInfo);
 
         } catch (TTransportException e) {
             e.printStackTrace();
@@ -100,7 +100,7 @@ public class TracingManager {
             protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.createStage(stage);
+            tClient.updateStageInfo(stage);
 
         } catch (TTransportException e) {
             e.printStackTrace();

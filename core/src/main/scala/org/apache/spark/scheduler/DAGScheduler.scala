@@ -849,7 +849,12 @@ class DAGScheduler(
     // Edit by Eddie
     // Transfer the job information to tracing server
     tracingManager.createJob(
-      new org.apache.spark.tracing.JobInfo(jobId, taskScheduler.applicationId()))
+      new org.apache.spark.tracing.JobInfo(
+        jobId,
+        taskScheduler.applicationId(),
+        "RUNNING",
+        System.currentTimeMillis(),
+        -1L))
     clearCacheLocs()
     logInfo("Got job %s (%s) with %d output partitions".format(
       job.jobId, callSite.shortForm, partitions.length))
@@ -923,16 +928,18 @@ class DAGScheduler(
           logInfo("Submitting " + stage + " (" + stage.rdd + "), which has no missing parents")
 
           // Edit by Eddie
-          // create running stage
-          tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
-            stage.id,
-            stage match {case s: ResultStage => "result"
-            case s: ShuffleMapStage => "shuffle"},
-            stage.firstJobId,
-            taskScheduler.applicationId(),
-            "ACTIVE",
-            0
-          ))
+          // we submit the ready stage in submitMissingTasks to avoid duplicated submission
+//          tracingManager.createOrUpdateStage(new org.apache.spark.tracing.StageInfo(
+//            stage.id,
+//            stage match {case s: ResultStage => "result"
+//            case s: ShuffleMapStage => "shuffle"},
+//            stage.firstJobId,
+//            taskScheduler.applicationId(),
+//            "ACTIVE",
+//            0,
+//            -1L,
+//            -1L
+//          ))
           submitMissingTasks(stage, jobId.get)
         } else {
           for (parent <- missing) {
@@ -949,7 +956,9 @@ class DAGScheduler(
             stage.firstJobId,
             taskScheduler.applicationId(),
             "PENDING",
-            0
+            0,
+            -1L,
+            -1L
           ))
         }
       }
@@ -1083,7 +1092,10 @@ class DAGScheduler(
           jobId,
           taskScheduler.applicationId(),
           "ACTIVE",
-          tasks.size))
+          tasks.size,
+          System.currentTimeMillis(),
+          -1L
+        ))
     } else {
       // Because we posted SparkListenerStageSubmitted earlier, we should mark
       // the stage as completed here in case there are no tasks to run
