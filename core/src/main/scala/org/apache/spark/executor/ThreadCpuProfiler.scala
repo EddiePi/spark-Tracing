@@ -19,8 +19,8 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
 
   // these three need to be updated every interval
   private val threadIdToPrevCpuTime = new ConcurrentHashMap[Long, Long]()
+  private val threadIdToPrevSystemTime = new ConcurrentHashMap[Long, Long]()
   private val taskIdToCpuUsage = new ConcurrentHashMap[Long, Double]()
-  private var prevTime: Double = System.currentTimeMillis() * 1000000D
 
   // used for finished but unreported tasks
   private val unreportedTaskIdToCpuUsage = new ConcurrentHashMap[Long, Double]()
@@ -41,7 +41,7 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
   @volatile def registerTask(taskId: Long, threadId: Long): Unit = {
     logDebug("registered task: " + taskId + " thread: " + threadId)
     taskIdToThreadId.put(taskId, threadId)
-    threadIdToPrevCpuTime.put(threadId, threadMXBean.getCurrentThreadCpuTime)
+    updatePrevTimesForThread(threadId)
     taskIdToCpuUsage.put(taskId, 0D)
   }
 
@@ -52,8 +52,18 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
     }
     // remove the finished task from these map
     taskIdToThreadId.remove(taskId)
-    threadIdToPrevCpuTime.remove(threadId)
+    removePrevTimesForThread(threadId)
     taskIdToCpuUsage.remove(taskId)
+  }
+
+  @volatile private def updatePrevTimesForThread (threadId: Long): Unit = {
+    threadIdToPrevCpuTime.put(threadId, threadMXBean.getThreadCpuTime(threadId))
+    threadIdToPrevSystemTime.put(threadId, System.currentTimeMillis())
+  }
+
+  @volatile private def removePrevTimesForThread (threadId: Long): Unit = {
+    threadIdToPrevCpuTime.remove(threadId)
+    threadIdToPrevSystemTime.remove(threadId)
   }
 
   @volatile def getTaskCpuUsage(taskId: Long): Double = {
@@ -81,17 +91,19 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
     if (taskIdToThreadId.containsKey(taskId)) {
       logDebug("profiling cpu usage for task: " + taskId)
       val threadId = taskIdToThreadId.get(taskId)
-      val curTime: Double = System.currentTimeMillis() * 1000000D
-      val elapsedTime = curTime - prevTime
-      prevTime = curTime
-      val curCpuTime =
-        threadMXBean.getThreadCpuTime(threadId) - threadIdToPrevCpuTime.get(threadId)
+      val curTime: Long = System.currentTimeMillis()
+      val elapsedTime: Double = (curTime - threadIdToPrevSystemTime.get(threadId)) * 1000000D
+
+      val curCpuTime = threadMXBean.getThreadCpuTime(threadId)
+      val elapsedCpuTime = curCpuTime - threadIdToPrevCpuTime.get(threadId)
       val cpuUsage: Double =
-        Math.min(99D, ((curCpuTime - threadIdToPrevCpuTime.get(threadId)) / (elapsedTime * cores)))
+        Math.min(0.99D,
+          (elapsedCpuTime / (elapsedTime * cores)))
       taskIdToCpuUsage.put(taskId, cpuUsage)
 
-      // update the previous cpu time for each thread
-      threadIdToPrevCpuTime.put(threadId, threadMXBean.getThreadCpuTime(threadId))
+      // update the previous time for each thread
+      updatePrevTimesForThread(threadId)
+      logDebug("cpu usage for task: " + taskId + " is " + cpuUsage)
       cpuUsage
     } else -1D
   }
