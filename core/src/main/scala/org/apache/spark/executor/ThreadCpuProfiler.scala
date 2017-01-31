@@ -87,7 +87,7 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
       val curCpuTime =
         threadMXBean.getThreadCpuTime(threadId) - threadIdToPrevCpuTime.get(threadId)
       val cpuUsage: Double =
-        Math.min(99D, (curCpuTime - threadIdToPrevCpuTime.get(threadId) / (elapsedTime * cores)))
+        Math.min(99D, ((curCpuTime - threadIdToPrevCpuTime.get(threadId)) / (elapsedTime * cores)))
       taskIdToCpuUsage.put(taskId, cpuUsage)
 
       // update the previous cpu time for each thread
