@@ -34,7 +34,7 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
   private val cpuProfileExecutor =
     ThreadUtils.newDaemonSingleThreadScheduledExecutor("cpu-profile-executor")
 
-  startCpuProfileExecutor()
+  startCpuProfileThread()
 
 
   // called only after the task is started
@@ -108,7 +108,7 @@ class ThreadCpuProfiler (val conf: SparkConf) extends Logging {
     } else -1D
   }
 
-  private def startCpuProfileExecutor (): Unit = {
+  private def startCpuProfileThread (): Unit = {
     val intervalMs = profileInterval
 
     // Wait a random interval so the heartbeats don't end up in sync

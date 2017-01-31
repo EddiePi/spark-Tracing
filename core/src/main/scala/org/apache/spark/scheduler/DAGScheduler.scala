@@ -930,7 +930,7 @@ class DAGScheduler(
             case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
             taskScheduler.applicationId(),
-            "RUNNING",
+            "ACTIVE",
             0
           ))
           submitMissingTasks(stage, jobId.get)
@@ -948,7 +948,7 @@ class DAGScheduler(
             case s: ShuffleMapStage => "shuffle"},
             stage.firstJobId,
             taskScheduler.applicationId(),
-            "WAITING",
+            "PENDING",
             0
           ))
         }
@@ -1082,7 +1082,7 @@ class DAGScheduler(
           null,
           jobId,
           taskScheduler.applicationId(),
-          "SUBMITTED",
+          "ACTIVE",
           tasks.size))
     } else {
       // Because we posted SparkListenerStageSubmitted earlier, we should mark
