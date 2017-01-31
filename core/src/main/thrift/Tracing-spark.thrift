@@ -39,3 +39,8 @@ service TracingService {
 
 	void updateJobInfo(1: JobInfo job)
 }
+
+struct SchedulerEvent {
+	1: string event;
+	2: i64 timeStamp;
+}
