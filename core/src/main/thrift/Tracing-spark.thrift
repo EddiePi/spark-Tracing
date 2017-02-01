@@ -39,7 +39,9 @@ service TracingService {
 
 	void updateJobInfo(1: JobInfo job)
 
-	void notifyEvent(1: SchedulerEvent event)
+	void notifyCommonEvent(1: SchedulerEvent event)
+	
+	void notifyTaskEndEvent(1: TaskEndEvent event)
 }
 
 struct SchedulerEvent {
@@ -47,3 +49,13 @@ struct SchedulerEvent {
 	2: i64 timeStamp;
 	3: string reason;
 }
+
+struct TaskEndEvent {
+	1: i64 taskId;
+	2: i32 stageId;
+	3: i32 jobId;
+	4: string appId;
+	5: i64 timeStemp;
+	6: string reason;
+}
+

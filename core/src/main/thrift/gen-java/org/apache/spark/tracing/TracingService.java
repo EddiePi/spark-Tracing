@@ -45,7 +45,9 @@ public class TracingService {
 
     public void updateJobInfo(JobInfo job) throws org.apache.thrift.TException;
 
-    public void notifyEvent(SchedulerEvent event) throws org.apache.thrift.TException;
+    public void notifyCommonEvent(SchedulerEvent event) throws org.apache.thrift.TException;
+
+    public void notifyTaskEndEvent(TaskEndEvent event) throws org.apache.thrift.TException;
 
   }
 
@@ -57,7 +59,9 @@ public class TracingService {
 
     public void updateJobInfo(JobInfo job, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void notifyEvent(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void notifyCommonEvent(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void notifyTaskEndEvent(TaskEndEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -141,23 +145,43 @@ public class TracingService {
       return;
     }
 
-    public void notifyEvent(SchedulerEvent event) throws org.apache.thrift.TException
+    public void notifyCommonEvent(SchedulerEvent event) throws org.apache.thrift.TException
     {
-      send_notifyEvent(event);
-      recv_notifyEvent();
+      send_notifyCommonEvent(event);
+      recv_notifyCommonEvent();
     }
 
-    public void send_notifyEvent(SchedulerEvent event) throws org.apache.thrift.TException
+    public void send_notifyCommonEvent(SchedulerEvent event) throws org.apache.thrift.TException
     {
-      notifyEvent_args args = new notifyEvent_args();
+      notifyCommonEvent_args args = new notifyCommonEvent_args();
       args.setEvent(event);
-      sendBase("notifyEvent", args);
+      sendBase("notifyCommonEvent", args);
     }
 
-    public void recv_notifyEvent() throws org.apache.thrift.TException
+    public void recv_notifyCommonEvent() throws org.apache.thrift.TException
     {
-      notifyEvent_result result = new notifyEvent_result();
-      receiveBase(result, "notifyEvent");
+      notifyCommonEvent_result result = new notifyCommonEvent_result();
+      receiveBase(result, "notifyCommonEvent");
+      return;
+    }
+
+    public void notifyTaskEndEvent(TaskEndEvent event) throws org.apache.thrift.TException
+    {
+      send_notifyTaskEndEvent(event);
+      recv_notifyTaskEndEvent();
+    }
+
+    public void send_notifyTaskEndEvent(TaskEndEvent event) throws org.apache.thrift.TException
+    {
+      notifyTaskEndEvent_args args = new notifyTaskEndEvent_args();
+      args.setEvent(event);
+      sendBase("notifyTaskEndEvent", args);
+    }
+
+    public void recv_notifyTaskEndEvent() throws org.apache.thrift.TException
+    {
+      notifyTaskEndEvent_result result = new notifyTaskEndEvent_result();
+      receiveBase(result, "notifyTaskEndEvent");
       return;
     }
 
@@ -275,23 +299,23 @@ public class TracingService {
       }
     }
 
-    public void notifyEvent(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void notifyCommonEvent(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      notifyEvent_call method_call = new notifyEvent_call(event, resultHandler, this, ___protocolFactory, ___transport);
+      notifyCommonEvent_call method_call = new notifyCommonEvent_call(event, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
-    public static class notifyEvent_call extends org.apache.thrift.async.TAsyncMethodCall {
+    public static class notifyCommonEvent_call extends org.apache.thrift.async.TAsyncMethodCall {
       private SchedulerEvent event;
-      public notifyEvent_call(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public notifyCommonEvent_call(SchedulerEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.event = event;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("notifyEvent", org.apache.thrift.protocol.TMessageType.CALL, 0));
-        notifyEvent_args args = new notifyEvent_args();
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("notifyCommonEvent", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        notifyCommonEvent_args args = new notifyCommonEvent_args();
         args.setEvent(event);
         args.write(prot);
         prot.writeMessageEnd();
@@ -303,7 +327,39 @@ public class TracingService {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        (new Client(prot)).recv_notifyEvent();
+        (new Client(prot)).recv_notifyCommonEvent();
+      }
+    }
+
+    public void notifyTaskEndEvent(TaskEndEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      notifyTaskEndEvent_call method_call = new notifyTaskEndEvent_call(event, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class notifyTaskEndEvent_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private TaskEndEvent event;
+      public notifyTaskEndEvent_call(TaskEndEvent event, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.event = event;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("notifyTaskEndEvent", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        notifyTaskEndEvent_args args = new notifyTaskEndEvent_args();
+        args.setEvent(event);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_notifyTaskEndEvent();
       }
     }
 
@@ -323,7 +379,8 @@ public class TracingService {
       processMap.put("updateTaskInfo", new updateTaskInfo());
       processMap.put("updateStageInfo", new updateStageInfo());
       processMap.put("updateJobInfo", new updateJobInfo());
-      processMap.put("notifyEvent", new notifyEvent());
+      processMap.put("notifyCommonEvent", new notifyCommonEvent());
+      processMap.put("notifyTaskEndEvent", new notifyTaskEndEvent());
       return processMap;
     }
 
@@ -387,22 +444,42 @@ public class TracingService {
       }
     }
 
-    public static class notifyEvent<I extends Iface> extends org.apache.thrift.ProcessFunction<I, notifyEvent_args> {
-      public notifyEvent() {
-        super("notifyEvent");
+    public static class notifyCommonEvent<I extends Iface> extends org.apache.thrift.ProcessFunction<I, notifyCommonEvent_args> {
+      public notifyCommonEvent() {
+        super("notifyCommonEvent");
       }
 
-      public notifyEvent_args getEmptyArgsInstance() {
-        return new notifyEvent_args();
+      public notifyCommonEvent_args getEmptyArgsInstance() {
+        return new notifyCommonEvent_args();
       }
 
       protected boolean isOneway() {
         return false;
       }
 
-      public notifyEvent_result getResult(I iface, notifyEvent_args args) throws org.apache.thrift.TException {
-        notifyEvent_result result = new notifyEvent_result();
-        iface.notifyEvent(args.event);
+      public notifyCommonEvent_result getResult(I iface, notifyCommonEvent_args args) throws org.apache.thrift.TException {
+        notifyCommonEvent_result result = new notifyCommonEvent_result();
+        iface.notifyCommonEvent(args.event);
+        return result;
+      }
+    }
+
+    public static class notifyTaskEndEvent<I extends Iface> extends org.apache.thrift.ProcessFunction<I, notifyTaskEndEvent_args> {
+      public notifyTaskEndEvent() {
+        super("notifyTaskEndEvent");
+      }
+
+      public notifyTaskEndEvent_args getEmptyArgsInstance() {
+        return new notifyTaskEndEvent_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public notifyTaskEndEvent_result getResult(I iface, notifyTaskEndEvent_args args) throws org.apache.thrift.TException {
+        notifyTaskEndEvent_result result = new notifyTaskEndEvent_result();
+        iface.notifyTaskEndEvent(args.event);
         return result;
       }
     }
@@ -423,7 +500,8 @@ public class TracingService {
       processMap.put("updateTaskInfo", new updateTaskInfo());
       processMap.put("updateStageInfo", new updateStageInfo());
       processMap.put("updateJobInfo", new updateJobInfo());
-      processMap.put("notifyEvent", new notifyEvent());
+      processMap.put("notifyCommonEvent", new notifyCommonEvent());
+      processMap.put("notifyTaskEndEvent", new notifyTaskEndEvent());
       return processMap;
     }
 
@@ -577,20 +655,20 @@ public class TracingService {
       }
     }
 
-    public static class notifyEvent<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, notifyEvent_args, Void> {
-      public notifyEvent() {
-        super("notifyEvent");
+    public static class notifyCommonEvent<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, notifyCommonEvent_args, Void> {
+      public notifyCommonEvent() {
+        super("notifyCommonEvent");
       }
 
-      public notifyEvent_args getEmptyArgsInstance() {
-        return new notifyEvent_args();
+      public notifyCommonEvent_args getEmptyArgsInstance() {
+        return new notifyCommonEvent_args();
       }
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<Void>() { 
           public void onComplete(Void o) {
-            notifyEvent_result result = new notifyEvent_result();
+            notifyCommonEvent_result result = new notifyCommonEvent_result();
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -602,7 +680,7 @@ public class TracingService {
           public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
-            notifyEvent_result result = new notifyEvent_result();
+            notifyCommonEvent_result result = new notifyCommonEvent_result();
             {
               msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
               msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
@@ -622,8 +700,58 @@ public class TracingService {
         return false;
       }
 
-      public void start(I iface, notifyEvent_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.notifyEvent(args.event,resultHandler);
+      public void start(I iface, notifyCommonEvent_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.notifyCommonEvent(args.event,resultHandler);
+      }
+    }
+
+    public static class notifyTaskEndEvent<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, notifyTaskEndEvent_args, Void> {
+      public notifyTaskEndEvent() {
+        super("notifyTaskEndEvent");
+      }
+
+      public notifyTaskEndEvent_args getEmptyArgsInstance() {
+        return new notifyTaskEndEvent_args();
+      }
+
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
+            notifyTaskEndEvent_result result = new notifyTaskEndEvent_result();
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            notifyTaskEndEvent_result result = new notifyTaskEndEvent_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, notifyTaskEndEvent_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.notifyTaskEndEvent(args.event,resultHandler);
       }
     }
 
@@ -2471,15 +2599,15 @@ public class TracingService {
 
   }
 
-  public static class notifyEvent_args implements org.apache.thrift.TBase<notifyEvent_args, notifyEvent_args._Fields>, java.io.Serializable, Cloneable, Comparable<notifyEvent_args>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyEvent_args");
+  public static class notifyCommonEvent_args implements org.apache.thrift.TBase<notifyCommonEvent_args, notifyCommonEvent_args._Fields>, java.io.Serializable, Cloneable, Comparable<notifyCommonEvent_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyCommonEvent_args");
 
     private static final org.apache.thrift.protocol.TField EVENT_FIELD_DESC = new org.apache.thrift.protocol.TField("event", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new notifyEvent_argsStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new notifyEvent_argsTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new notifyCommonEvent_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new notifyCommonEvent_argsTupleSchemeFactory());
     }
 
     public SchedulerEvent event; // required
@@ -2549,13 +2677,13 @@ public class TracingService {
       tmpMap.put(_Fields.EVENT, new org.apache.thrift.meta_data.FieldMetaData("event", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT          , "SchedulerEvent")));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyEvent_args.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyCommonEvent_args.class, metaDataMap);
     }
 
-    public notifyEvent_args() {
+    public notifyCommonEvent_args() {
     }
 
-    public notifyEvent_args(
+    public notifyCommonEvent_args(
       SchedulerEvent event)
     {
       this();
@@ -2565,14 +2693,14 @@ public class TracingService {
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public notifyEvent_args(notifyEvent_args other) {
+    public notifyCommonEvent_args(notifyCommonEvent_args other) {
       if (other.isSetEvent()) {
         this.event = other.event;
       }
     }
 
-    public notifyEvent_args deepCopy() {
-      return new notifyEvent_args(this);
+    public notifyCommonEvent_args deepCopy() {
+      return new notifyCommonEvent_args(this);
     }
 
     @Override
@@ -2584,7 +2712,7 @@ public class TracingService {
       return this.event;
     }
 
-    public notifyEvent_args setEvent(SchedulerEvent event) {
+    public notifyCommonEvent_args setEvent(SchedulerEvent event) {
       this.event = event;
       return this;
     }
@@ -2643,12 +2771,12 @@ public class TracingService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof notifyEvent_args)
-        return this.equals((notifyEvent_args)that);
+      if (that instanceof notifyCommonEvent_args)
+        return this.equals((notifyCommonEvent_args)that);
       return false;
     }
 
-    public boolean equals(notifyEvent_args that) {
+    public boolean equals(notifyCommonEvent_args that) {
       if (that == null)
         return false;
 
@@ -2677,7 +2805,7 @@ public class TracingService {
     }
 
     @Override
-    public int compareTo(notifyEvent_args other) {
+    public int compareTo(notifyCommonEvent_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -2711,7 +2839,7 @@ public class TracingService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("notifyEvent_args(");
+      StringBuilder sb = new StringBuilder("notifyCommonEvent_args(");
       boolean first = true;
 
       sb.append("event:");
@@ -2746,15 +2874,15 @@ public class TracingService {
       }
     }
 
-    private static class notifyEvent_argsStandardSchemeFactory implements SchemeFactory {
-      public notifyEvent_argsStandardScheme getScheme() {
-        return new notifyEvent_argsStandardScheme();
+    private static class notifyCommonEvent_argsStandardSchemeFactory implements SchemeFactory {
+      public notifyCommonEvent_argsStandardScheme getScheme() {
+        return new notifyCommonEvent_argsStandardScheme();
       }
     }
 
-    private static class notifyEvent_argsStandardScheme extends StandardScheme<notifyEvent_args> {
+    private static class notifyCommonEvent_argsStandardScheme extends StandardScheme<notifyCommonEvent_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyEvent_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyCommonEvent_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -2784,7 +2912,7 @@ public class TracingService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyEvent_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyCommonEvent_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -2799,16 +2927,16 @@ public class TracingService {
 
     }
 
-    private static class notifyEvent_argsTupleSchemeFactory implements SchemeFactory {
-      public notifyEvent_argsTupleScheme getScheme() {
-        return new notifyEvent_argsTupleScheme();
+    private static class notifyCommonEvent_argsTupleSchemeFactory implements SchemeFactory {
+      public notifyCommonEvent_argsTupleScheme getScheme() {
+        return new notifyCommonEvent_argsTupleScheme();
       }
     }
 
-    private static class notifyEvent_argsTupleScheme extends TupleScheme<notifyEvent_args> {
+    private static class notifyCommonEvent_argsTupleScheme extends TupleScheme<notifyCommonEvent_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, notifyEvent_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, notifyCommonEvent_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetEvent()) {
@@ -2821,7 +2949,7 @@ public class TracingService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, notifyEvent_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, notifyCommonEvent_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
@@ -2834,14 +2962,14 @@ public class TracingService {
 
   }
 
-  public static class notifyEvent_result implements org.apache.thrift.TBase<notifyEvent_result, notifyEvent_result._Fields>, java.io.Serializable, Cloneable, Comparable<notifyEvent_result>   {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyEvent_result");
+  public static class notifyCommonEvent_result implements org.apache.thrift.TBase<notifyCommonEvent_result, notifyCommonEvent_result._Fields>, java.io.Serializable, Cloneable, Comparable<notifyCommonEvent_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyCommonEvent_result");
 
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
-      schemes.put(StandardScheme.class, new notifyEvent_resultStandardSchemeFactory());
-      schemes.put(TupleScheme.class, new notifyEvent_resultTupleSchemeFactory());
+      schemes.put(StandardScheme.class, new notifyCommonEvent_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new notifyCommonEvent_resultTupleSchemeFactory());
     }
 
 
@@ -2904,20 +3032,20 @@ public class TracingService {
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyEvent_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyCommonEvent_result.class, metaDataMap);
     }
 
-    public notifyEvent_result() {
+    public notifyCommonEvent_result() {
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public notifyEvent_result(notifyEvent_result other) {
+    public notifyCommonEvent_result(notifyCommonEvent_result other) {
     }
 
-    public notifyEvent_result deepCopy() {
-      return new notifyEvent_result(this);
+    public notifyCommonEvent_result deepCopy() {
+      return new notifyCommonEvent_result(this);
     }
 
     @Override
@@ -2950,12 +3078,12 @@ public class TracingService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof notifyEvent_result)
-        return this.equals((notifyEvent_result)that);
+      if (that instanceof notifyCommonEvent_result)
+        return this.equals((notifyCommonEvent_result)that);
       return false;
     }
 
-    public boolean equals(notifyEvent_result that) {
+    public boolean equals(notifyCommonEvent_result that) {
       if (that == null)
         return false;
 
@@ -2970,7 +3098,7 @@ public class TracingService {
     }
 
     @Override
-    public int compareTo(notifyEvent_result other) {
+    public int compareTo(notifyCommonEvent_result other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
@@ -2994,7 +3122,7 @@ public class TracingService {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("notifyEvent_result(");
+      StringBuilder sb = new StringBuilder("notifyCommonEvent_result(");
       boolean first = true;
 
       sb.append(")");
@@ -3022,15 +3150,15 @@ public class TracingService {
       }
     }
 
-    private static class notifyEvent_resultStandardSchemeFactory implements SchemeFactory {
-      public notifyEvent_resultStandardScheme getScheme() {
-        return new notifyEvent_resultStandardScheme();
+    private static class notifyCommonEvent_resultStandardSchemeFactory implements SchemeFactory {
+      public notifyCommonEvent_resultStandardScheme getScheme() {
+        return new notifyCommonEvent_resultStandardScheme();
       }
     }
 
-    private static class notifyEvent_resultStandardScheme extends StandardScheme<notifyEvent_result> {
+    private static class notifyCommonEvent_resultStandardScheme extends StandardScheme<notifyCommonEvent_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyEvent_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyCommonEvent_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -3051,7 +3179,7 @@ public class TracingService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyEvent_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyCommonEvent_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -3061,21 +3189,632 @@ public class TracingService {
 
     }
 
-    private static class notifyEvent_resultTupleSchemeFactory implements SchemeFactory {
-      public notifyEvent_resultTupleScheme getScheme() {
-        return new notifyEvent_resultTupleScheme();
+    private static class notifyCommonEvent_resultTupleSchemeFactory implements SchemeFactory {
+      public notifyCommonEvent_resultTupleScheme getScheme() {
+        return new notifyCommonEvent_resultTupleScheme();
       }
     }
 
-    private static class notifyEvent_resultTupleScheme extends TupleScheme<notifyEvent_result> {
+    private static class notifyCommonEvent_resultTupleScheme extends TupleScheme<notifyCommonEvent_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, notifyEvent_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, notifyCommonEvent_result struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, notifyEvent_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, notifyCommonEvent_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class notifyTaskEndEvent_args implements org.apache.thrift.TBase<notifyTaskEndEvent_args, notifyTaskEndEvent_args._Fields>, java.io.Serializable, Cloneable, Comparable<notifyTaskEndEvent_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyTaskEndEvent_args");
+
+    private static final org.apache.thrift.protocol.TField EVENT_FIELD_DESC = new org.apache.thrift.protocol.TField("event", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new notifyTaskEndEvent_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new notifyTaskEndEvent_argsTupleSchemeFactory());
+    }
+
+    public TaskEndEvent event; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      EVENT((short)1, "event");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // EVENT
+            return EVENT;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.EVENT, new org.apache.thrift.meta_data.FieldMetaData("event", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT          , "TaskEndEvent")));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyTaskEndEvent_args.class, metaDataMap);
+    }
+
+    public notifyTaskEndEvent_args() {
+    }
+
+    public notifyTaskEndEvent_args(
+      TaskEndEvent event)
+    {
+      this();
+      this.event = event;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public notifyTaskEndEvent_args(notifyTaskEndEvent_args other) {
+      if (other.isSetEvent()) {
+        this.event = other.event;
+      }
+    }
+
+    public notifyTaskEndEvent_args deepCopy() {
+      return new notifyTaskEndEvent_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.event = null;
+    }
+
+    public TaskEndEvent getEvent() {
+      return this.event;
+    }
+
+    public notifyTaskEndEvent_args setEvent(TaskEndEvent event) {
+      this.event = event;
+      return this;
+    }
+
+    public void unsetEvent() {
+      this.event = null;
+    }
+
+    /** Returns true if field event is set (has been assigned a value) and false otherwise */
+    public boolean isSetEvent() {
+      return this.event != null;
+    }
+
+    public void setEventIsSet(boolean value) {
+      if (!value) {
+        this.event = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case EVENT:
+        if (value == null) {
+          unsetEvent();
+        } else {
+          setEvent((TaskEndEvent)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case EVENT:
+        return getEvent();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case EVENT:
+        return isSetEvent();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof notifyTaskEndEvent_args)
+        return this.equals((notifyTaskEndEvent_args)that);
+      return false;
+    }
+
+    public boolean equals(notifyTaskEndEvent_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_event = true && this.isSetEvent();
+      boolean that_present_event = true && that.isSetEvent();
+      if (this_present_event || that_present_event) {
+        if (!(this_present_event && that_present_event))
+          return false;
+        if (!this.event.equals(that.event))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_event = true && (isSetEvent());
+      list.add(present_event);
+      if (present_event)
+        list.add(event);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(notifyTaskEndEvent_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetEvent()).compareTo(other.isSetEvent());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetEvent()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.event, other.event);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("notifyTaskEndEvent_args(");
+      boolean first = true;
+
+      sb.append("event:");
+      if (this.event == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.event);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class notifyTaskEndEvent_argsStandardSchemeFactory implements SchemeFactory {
+      public notifyTaskEndEvent_argsStandardScheme getScheme() {
+        return new notifyTaskEndEvent_argsStandardScheme();
+      }
+    }
+
+    private static class notifyTaskEndEvent_argsStandardScheme extends StandardScheme<notifyTaskEndEvent_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyTaskEndEvent_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // EVENT
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.event = new TaskEndEvent();
+                struct.event.read(iprot);
+                struct.setEventIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyTaskEndEvent_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.event != null) {
+          oprot.writeFieldBegin(EVENT_FIELD_DESC);
+          struct.event.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class notifyTaskEndEvent_argsTupleSchemeFactory implements SchemeFactory {
+      public notifyTaskEndEvent_argsTupleScheme getScheme() {
+        return new notifyTaskEndEvent_argsTupleScheme();
+      }
+    }
+
+    private static class notifyTaskEndEvent_argsTupleScheme extends TupleScheme<notifyTaskEndEvent_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, notifyTaskEndEvent_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetEvent()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetEvent()) {
+          struct.event.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, notifyTaskEndEvent_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.event = new TaskEndEvent();
+          struct.event.read(iprot);
+          struct.setEventIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class notifyTaskEndEvent_result implements org.apache.thrift.TBase<notifyTaskEndEvent_result, notifyTaskEndEvent_result._Fields>, java.io.Serializable, Cloneable, Comparable<notifyTaskEndEvent_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("notifyTaskEndEvent_result");
+
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new notifyTaskEndEvent_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new notifyTaskEndEvent_resultTupleSchemeFactory());
+    }
+
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+;
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(notifyTaskEndEvent_result.class, metaDataMap);
+    }
+
+    public notifyTaskEndEvent_result() {
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public notifyTaskEndEvent_result(notifyTaskEndEvent_result other) {
+    }
+
+    public notifyTaskEndEvent_result deepCopy() {
+      return new notifyTaskEndEvent_result(this);
+    }
+
+    @Override
+    public void clear() {
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof notifyTaskEndEvent_result)
+        return this.equals((notifyTaskEndEvent_result)that);
+      return false;
+    }
+
+    public boolean equals(notifyTaskEndEvent_result that) {
+      if (that == null)
+        return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(notifyTaskEndEvent_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("notifyTaskEndEvent_result(");
+      boolean first = true;
+
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class notifyTaskEndEvent_resultStandardSchemeFactory implements SchemeFactory {
+      public notifyTaskEndEvent_resultStandardScheme getScheme() {
+        return new notifyTaskEndEvent_resultStandardScheme();
+      }
+    }
+
+    private static class notifyTaskEndEvent_resultStandardScheme extends StandardScheme<notifyTaskEndEvent_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, notifyTaskEndEvent_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, notifyTaskEndEvent_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class notifyTaskEndEvent_resultTupleSchemeFactory implements SchemeFactory {
+      public notifyTaskEndEvent_resultTupleScheme getScheme() {
+        return new notifyTaskEndEvent_resultTupleScheme();
+      }
+    }
+
+    private static class notifyTaskEndEvent_resultTupleScheme extends TupleScheme<notifyTaskEndEvent_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, notifyTaskEndEvent_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, notifyTaskEndEvent_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
       }
     }
