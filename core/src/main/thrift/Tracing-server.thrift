@@ -44,4 +44,5 @@ service TracingService {
 struct SchedulerEvent {
 	1: string event;
 	2: i64 timeStamp;
+	3: string reason;
 }
