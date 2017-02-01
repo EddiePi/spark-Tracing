@@ -721,6 +721,11 @@ class DAGScheduler(
       reason = "as part of cancellation of all jobs"))
     activeJobs.clear() // These should already be empty by this point,
     jobIdToActiveJob.clear() // but just in case we lost track of some jobs...
+    tracingManager.eventNotification(new SchedulerEvent(
+      "AllJobsCancelled",
+      System.currentTimeMillis(),
+      null
+    ))
   }
 
   /**
@@ -798,6 +803,11 @@ class DAGScheduler(
       taskSet: TaskSet,
       reason: String,
       exception: Option[Throwable]): Unit = {
+    tracingManager.eventNotification(new SchedulerEvent(
+      "TaskSetFailed",
+      System.currentTimeMillis(),
+      reason
+    ))
     stageIdToStage.get(taskSet.stageId).foreach { abortStage(_, reason, exception) }
   }
 
@@ -1409,6 +1419,11 @@ class DAGScheduler(
   private[scheduler] def handleStageCancellation(stageId: Int) {
     stageIdToStage.get(stageId) match {
       case Some(stage) =>
+        tracingManager.eventNotification(new SchedulerEvent(
+          "StageCancelled",
+          System.currentTimeMillis(),
+          null
+        ))
         val jobsThatUseStage: Array[Int] = stage.jobIds.toArray
         jobsThatUseStage.foreach { jobId =>
           handleJobCancellation(jobId, s"because Stage $stageId was cancelled")
@@ -1422,6 +1437,11 @@ class DAGScheduler(
     if (!jobIdToStageIds.contains(jobId)) {
       logDebug("Trying to cancel unregistered job " + jobId)
     } else {
+      tracingManager.eventNotification(new SchedulerEvent(
+        "JobCancelled",
+        System.currentTimeMillis(),
+        reason
+      ))
       failJobAndIndependentStages(
         jobIdToActiveJob(jobId), "Job %d cancelled %s".format(jobId, reason))
     }

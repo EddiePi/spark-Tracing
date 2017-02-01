@@ -114,7 +114,7 @@ public class TracingManager {
         }
     }
 
-    public void evenNotification(SchedulerEvent event) {
+    public void eventNotification(SchedulerEvent event) {
         if (!isTracingEnabled) {
             return;
         }
@@ -125,7 +125,7 @@ public class TracingManager {
             protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.
+            tClient.notifyEvent(event);
 
         } catch (TTransportException e) {
             e.printStackTrace();
