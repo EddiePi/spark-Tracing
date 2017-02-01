@@ -39,37 +39,13 @@ public class TracingManager {
     /** establish connection */
 
     /** transfer a new job to the server */
-    public void createJob(JobInfo jobInfo) {
+    public void createOrUpdateJobInfo(JobInfo jobInfo) {
         if (!isTracingEnabled) {
             return;
         }
         TTransport transport = null;
         TProtocol protocol;
 
-        try {
-            transport = new TSocket(serverURL, serverPort);
-            protocol = new TBinaryProtocol(transport);
-            TracingService.Client tClient = new TracingService.Client(protocol);
-            transport.open();
-            tClient.updateJobInfo(jobInfo);
-
-        } catch (TTransportException e) {
-            e.printStackTrace();
-        } catch (TException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != transport) {
-                transport.close();
-            }
-        }
-    }
-
-    public void updateJobInfo(JobInfo jobInfo) {
-        if (!isTracingEnabled) {
-            return;
-        }
-        TTransport transport = null;
-        TProtocol protocol;
         try {
             transport = new TSocket(serverURL, serverPort);
             protocol = new TBinaryProtocol(transport);
@@ -89,7 +65,7 @@ public class TracingManager {
     }
 
     /** transfer new stages to the server */
-    public void createOrUpdateStage(StageInfo stage) {
+    public void createOrUpdateStageInfo(StageInfo stage) {
         if (!isTracingEnabled) {
             return;
         }
@@ -113,32 +89,6 @@ public class TracingManager {
         }
     }
 
-    /** update the status of a stage */
-    public void updateStageInfo(StageInfo stageInfo) {
-        if (!isTracingEnabled) {
-            return;
-        }
-        TTransport transport = null;
-        TProtocol protocol;
-        try {
-            transport = new TSocket(serverURL, serverPort);
-            protocol = new TBinaryProtocol(transport);
-            TracingService.Client tClient = new TracingService.Client(protocol);
-            transport.open();
-            tClient.updateStageInfo(stageInfo);
-
-        } catch (TTransportException e) {
-            e.printStackTrace();
-        } catch (TException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != transport) {
-                transport.close();
-            }
-        }
-    }
-
-
     /** update the status of a task */
     public void createOrUpdateTaskInfo(TaskInfo taskInfo) {
         if (!isTracingEnabled) {
@@ -152,6 +102,30 @@ public class TracingManager {
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
             tClient.updateTaskInfo(taskInfo);
+
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != transport) {
+                transport.close();
+            }
+        }
+    }
+
+    public void evenNotification(SchedulerEvent event) {
+        if (!isTracingEnabled) {
+            return;
+        }
+        TTransport transport = null;
+        TProtocol protocol;
+        try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
+            TracingService.Client tClient = new TracingService.Client(protocol);
+            transport.open();
+            tClient.
 
         } catch (TTransportException e) {
             e.printStackTrace();

@@ -153,13 +153,13 @@ public class TracingService {
     {
       createJob_args args = new createJob_args();
       args.setJob(job);
-      sendBase("createJob", args);
+      sendBase("createOrUpdateJobInfo", args);
     }
 
     public void recv_createJob() throws org.apache.thrift.TException
     {
       createJob_result result = new createJob_result();
-      receiveBase(result, "createJob");
+      receiveBase(result, "createOrUpdateJobInfo");
       return;
     }
 
@@ -312,7 +312,7 @@ public class TracingService {
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
-        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createJob", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createOrUpdateJobInfo", org.apache.thrift.protocol.TMessageType.CALL, 0));
         createJob_args args = new createJob_args();
         args.setJob(job);
         args.write(prot);
@@ -377,7 +377,7 @@ public class TracingService {
       processMap.put("updateTaskInfo", new updateTaskInfo());
       processMap.put("createStage", new createStage());
       processMap.put("updateStageInfo", new updateStageInfo());
-      processMap.put("createJob", new createJob());
+      processMap.put("createOrUpdateJobInfo", new createJob());
       processMap.put("updateJobInfo", new updateJobInfo());
       return processMap;
     }
@@ -444,7 +444,7 @@ public class TracingService {
 
     public static class createJob<I extends Iface> extends org.apache.thrift.ProcessFunction<I, createJob_args> {
       public createJob() {
-        super("createJob");
+        super("createOrUpdateJobInfo");
       }
 
       public createJob_args getEmptyArgsInstance() {
@@ -498,7 +498,7 @@ public class TracingService {
       processMap.put("updateTaskInfo", new updateTaskInfo());
       processMap.put("createStage", new createStage());
       processMap.put("updateStageInfo", new updateStageInfo());
-      processMap.put("createJob", new createJob());
+      processMap.put("createOrUpdateJobInfo", new createJob());
       processMap.put("updateJobInfo", new updateJobInfo());
       return processMap;
     }
@@ -655,7 +655,7 @@ public class TracingService {
 
     public static class createJob<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, createJob_args, Void> {
       public createJob() {
-        super("createJob");
+        super("createOrUpdateJobInfo");
       }
 
       public createJob_args getEmptyArgsInstance() {
