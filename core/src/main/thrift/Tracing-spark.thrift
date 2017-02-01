@@ -38,6 +38,8 @@ service TracingService {
 	void updateStageInfo (1: StageInfo stage)
 
 	void updateJobInfo(1: JobInfo job)
+
+	void notifyEvent(1: SchedulerEvent event)
 }
 
 struct SchedulerEvent {
