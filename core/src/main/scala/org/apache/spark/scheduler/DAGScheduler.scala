@@ -1390,7 +1390,7 @@ class DAGScheduler(
         // Unrecognized failure - also do nothing. If the task fails repeatedly, the TaskScheduler
         // will abort the job.
     }
-    //Edit by Eddie
+    // Edit by Eddie
     tracingManager.taskEndEventNotification(taskEvent)
   }
 
