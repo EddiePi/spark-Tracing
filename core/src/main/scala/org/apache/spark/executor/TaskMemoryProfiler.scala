@@ -9,5 +9,4 @@ class TaskMemoryProfiler (conf: SparkConf) extends Logging {
   def registerTask (taskId: Long): Unit = {}
 
   def unregisterTask (taskId: Long): Unit = {}
-
 }

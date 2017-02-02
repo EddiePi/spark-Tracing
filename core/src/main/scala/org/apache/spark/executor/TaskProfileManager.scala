@@ -79,8 +79,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     */
   private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
-    for (taskInfo <- runningTasks.values()) {
-      taskSet.add(taskInfo)
+    val valueIterator = runningTasks.values().iterator()
+    while (valueIterator.hasNext) {
+      taskSet.add(valueIterator.next())
     }
     taskSet
   }
