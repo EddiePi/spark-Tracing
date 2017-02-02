@@ -721,7 +721,7 @@ class DAGScheduler(
       reason = "as part of cancellation of all jobs"))
     activeJobs.clear() // These should already be empty by this point,
     jobIdToActiveJob.clear() // but just in case we lost track of some jobs...
-    tracingManager.eventNotification(new SchedulerEvent(
+    tracingManager.commonEventNotification(new SchedulerEvent(
       "AllJobsCancelled",
       System.currentTimeMillis(),
       null
@@ -803,7 +803,7 @@ class DAGScheduler(
       taskSet: TaskSet,
       reason: String,
       exception: Option[Throwable]): Unit = {
-    tracingManager.eventNotification(new SchedulerEvent(
+    tracingManager.commonEventNotification(new SchedulerEvent(
       "TaskSetFailed",
       System.currentTimeMillis(),
       reason
@@ -1200,10 +1200,21 @@ class DAGScheduler(
       // Skip all the actions if the stage has been cancelled.
       return
     }
+    val taskEvent = new TaskEndEvent(
+      event.taskInfo.taskId,
+      task.stageId,
+      task.jobId.getOrElse(-1),
+      task.appId.getOrElse("anonymous-app"),
+      System.currentTimeMillis(),
+      ""
+    )
 
     val stage = stageIdToStage(task.stageId)
     event.reason match {
       case Success =>
+        // Edit by Eddie
+        taskEvent.reason = "Success"
+
         stage.pendingPartitions -= task.partitionId
         task match {
           case rt: ResultTask[_, _] =>
@@ -1291,10 +1302,15 @@ class DAGScheduler(
         }
 
       case Resubmitted =>
+        // Edit by Eddie
+        taskEvent.reason = "Resubmitted"
+
         logInfo("Resubmitted " + task + ", so marking it as still running")
         stage.pendingPartitions += task.partitionId
 
       case FetchFailed(bmAddress, shuffleId, mapId, reduceId, failureMessage) =>
+        taskEvent.reason = "FetchFailed"
+
         val failedStage = stageIdToStage(task.stageId)
         val mapStage = shuffleIdToMapStage(shuffleId)
 
@@ -1350,19 +1366,32 @@ class DAGScheduler(
         }
 
       case commitDenied: TaskCommitDenied =>
+        // Edit by Eddie
+        taskEvent.reason = "Commit Denied"
+
         // Do nothing here, left up to the TaskScheduler to decide how to handle denied commits
 
       case exceptionFailure: ExceptionFailure =>
+        // Edit by Eddie
+        taskEvent.reason = "Exception Failure"
+
         // Tasks failed with exceptions might still have accumulator updates.
         updateAccumulators(event)
 
       case TaskResultLost =>
+        // Edit by Eddie
+        taskEvent.reason = "Task Result Lost"
+
         // Do nothing here; the TaskScheduler handles these failures and resubmits the task.
 
       case _: ExecutorLostFailure | TaskKilled | UnknownReason =>
+        // Edit by Eddie
+        taskEvent.reason = "Unkown Failure"
         // Unrecognized failure - also do nothing. If the task fails repeatedly, the TaskScheduler
         // will abort the job.
     }
+    //Edit by Eddie
+    tracingManager.taskEndEventNotification(taskEvent)
   }
 
   /**
@@ -1419,7 +1448,7 @@ class DAGScheduler(
   private[scheduler] def handleStageCancellation(stageId: Int) {
     stageIdToStage.get(stageId) match {
       case Some(stage) =>
-        tracingManager.eventNotification(new SchedulerEvent(
+        tracingManager.commonEventNotification(new SchedulerEvent(
           "StageCancelled",
           System.currentTimeMillis(),
           null
@@ -1437,7 +1466,7 @@ class DAGScheduler(
     if (!jobIdToStageIds.contains(jobId)) {
       logDebug("Trying to cancel unregistered job " + jobId)
     } else {
-      tracingManager.eventNotification(new SchedulerEvent(
+      tracingManager.commonEventNotification(new SchedulerEvent(
         "JobCancelled",
         System.currentTimeMillis(),
         reason

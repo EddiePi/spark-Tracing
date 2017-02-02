@@ -114,7 +114,7 @@ public class TracingManager {
         }
     }
 
-    public void eventNotification(SchedulerEvent event) {
+    public void commonEventNotification(SchedulerEvent event) {
         if (!isTracingEnabled) {
             return;
         }
@@ -125,7 +125,31 @@ public class TracingManager {
             protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.notifyEvent(event);
+            tClient.notifyCommonEvent(event);
+
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != transport) {
+                transport.close();
+            }
+        }
+    }
+
+    public void taskEndEventNotification(TaskEndEvent event) {
+        if (!isTracingEnabled) {
+            return;
+        }
+        TTransport transport = null;
+        TProtocol protocol;
+        try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
+            TracingService.Client tClient = new TracingService.Client(protocol);
+            transport.open();
+            tClient.notifyTaskEndEvent(event);
 
         } catch (TTransportException e) {
             e.printStackTrace();
