@@ -1386,7 +1386,7 @@ class DAGScheduler(
 
       case _: ExecutorLostFailure | TaskKilled | UnknownReason =>
         // Edit by Eddie
-        taskEvent.reason = "Unkown Failure"
+        taskEvent.reason = "Unknown Failure"
         // Unrecognized failure - also do nothing. If the task fails repeatedly, the TaskScheduler
         // will abort the job.
     }
