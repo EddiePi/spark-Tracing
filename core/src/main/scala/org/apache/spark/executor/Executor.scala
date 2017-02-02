@@ -118,9 +118,7 @@ private[spark] class Executor(
   // Executor for the heartbeat task.
   private val heartbeater = ThreadUtils.newDaemonSingleThreadScheduledExecutor("driver-heartbeater")
 
-  // Edit by Eddie
-  // Tracing heartbeat
-  private val tracingHeartbeater = ThreadUtils.newDaemonSingleThreadScheduledExecutor("tracing-heartbeater")
+
 
   // must be initialized before running startDriverHeartbeat()
   private val heartbeatReceiverRef =
@@ -142,11 +140,8 @@ private[spark] class Executor(
   startDriverHeartbeater()
 
   // Edit by Eddie
-  startTracingHeartbeater()
-
-  // Edit by Eddie
-  private val tracingManager: TracingManager = env.tracingManager
-  private val taskCpuProfiler = new ThreadCpuProfiler(conf)
+  private val taskProfileManager = new TaskProfileManager(env)
+  taskProfileManager.startTracingHeartbeater()
 
   def launchTask(
       context: ExecutorBackend,
@@ -172,6 +167,7 @@ private[spark] class Executor(
    * Function to kill the running tasks in an executor.
    * This can be called by executor back-ends to kill the
    * tasks instead of taking the JVM down.
+ *
    * @param interruptThread whether to interrupt the task thread
    */
   def killAllTasks(interruptThread: Boolean) : Unit = {
@@ -222,7 +218,8 @@ private[spark] class Executor(
      */
     @volatile var task: Task[Any] = _
 
-    var state: String = _
+    // Edit by Eddie
+    var status: String = _
 
     def kill(interruptThread: Boolean): Unit = {
       logInfo(s"Executor is trying to kill $taskName (TID $taskId)")
@@ -268,12 +265,12 @@ private[spark] class Executor(
       logInfo(s"Running $taskName (TID $taskId)")
       execBackend.statusUpdate(taskId, TaskState.RUNNING, EMPTY_BYTE_BUFFER)
       // Edit by Eddie
-      state = TaskState.RUNNING.toString
+      status = TaskState.RUNNING.toString
 
       startGCTime = computeTotalGcTime()
       // Edit by Eddie
       runnableThreadId = Thread.currentThread().getId
-      taskCpuProfiler.registerTask(taskId, runnableThreadId)
+      taskProfileManager.registerTask(taskId, task, runnableThreadId)
 
       var taskStartCpu: Long = 0
       try {
@@ -404,28 +401,28 @@ private[spark] class Executor(
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, ser.serialize(reason))
           // Edit by Eddie
-          state = TaskState.FAILED.toString
+          status = TaskState.FAILED.toString
 
         case _: TaskKilledException =>
           logInfo(s"Executor killed $taskName (TID $taskId)")
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.KILLED, ser.serialize(TaskKilled))
           // Edit by Eddie
-          state = TaskState.KILLED.toString
+          status = TaskState.KILLED.toString
 
         case _: InterruptedException if task.killed =>
           logInfo(s"Executor interrupted and killed $taskName (TID $taskId)")
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.KILLED, ser.serialize(TaskKilled))
           // Edit by Eddie
-          state = TaskState.KILLED.toString
+          status = TaskState.KILLED.toString
 
         case CausedBy(cDE: CommitDeniedException) =>
           val reason = cDE.toTaskFailedReason
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, ser.serialize(reason))
           // Edit by Eddie
-          state = TaskState.FAILED.toString
+          status = TaskState.FAILED.toString
 
         case t: Throwable =>
           // Attempt to exit cleanly by informing the driver of our failure.
@@ -457,7 +454,7 @@ private[spark] class Executor(
           setTaskFinishedAndClearInterruptStatus()
           execBackend.statusUpdate(taskId, TaskState.FAILED, serializedTaskEndReason)
           // Edit by Eddie
-          state = TaskState.FAILED.toString
+          status = TaskState.FAILED.toString
 
           // Don't forcibly exit unless the exception was inherently fatal, to avoid
           // stopping other tasks unnecessarily.
@@ -469,7 +466,7 @@ private[spark] class Executor(
         runningTasks.remove(taskId)
 
         // Edit by Eddie
-        taskCpuProfiler.unregisterTask(taskId, runnableThreadId)
+        taskProfileManager.unregisterTask(taskId, status)
       }
     }
   }
@@ -610,55 +607,6 @@ private[spark] class Executor(
       override def run(): Unit = Utils.logUncaughtExceptions(reportHeartBeat())
     }
     heartbeater.scheduleAtFixedRate(heartbeatTask, initialDelay, intervalMs, TimeUnit.MILLISECONDS)
-  }
-
-
-  // Edit by Eddie
-  /**
-    * collect and prepare the task tracing information
-    */
-  private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
-    val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
-    for (taskRunner <- runningTasks.values().asScala) {
-      val taskInfo = new TaskInfo(
-        taskRunner.taskId,
-        taskRunner.task.stageId,
-        -1,
-        taskRunner.task.jobId.getOrElse(-1),
-        taskRunner.task.appId.getOrElse("unanimous-app"),
-        if (taskRunner.taskStart != 0) {
-          taskRunner.taskStart
-        } else -1L,
-        -1,
-        taskCpuProfiler.getTaskCpuUsage(taskRunner.taskId),
-        taskRunner.task.getTaskMemoryMananger.getMemoryConsumptionForThisTask,
-        taskRunner.state)
-      taskSet.add(taskInfo)
-    }
-    taskSet
-  }
-
-  // Edit by Eddie
-  private def reportTracingHeartbeat(): Unit = {
-    val taskSet = prepareRunningTaskTracingInfo()
-    for (taskInfo <- taskSet) {
-      logDebug("reporting tracing heartbeat. Size of taskSet is: " + taskSet.size)
-      tracingManager.createOrUpdateTaskInfo(taskInfo)
-    }
-  }
-
-  // Edit by Eddie
-  private def startTracingHeartbeater(): Unit = {
-    val intervalMs = conf.getTimeAsMs("spark.tracing.heartbeatInterval", "2s")
-
-    // Wait a random interval so the heartbeats don't end up in sync
-    val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
-
-    val heartbeatTask = new Runnable() {
-      override def run(): Unit = Utils.logUncaughtExceptions(reportTracingHeartbeat())
-    }
-    tracingHeartbeater.scheduleAtFixedRate(
-      heartbeatTask, initialDelay, intervalMs, TimeUnit.MILLISECONDS)
   }
 }
 
