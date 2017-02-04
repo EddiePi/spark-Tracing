@@ -29,9 +29,9 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
   private val osMXBean = ManagementFactory.getOperatingSystemMXBean
   private val cores = osMXBean.getAvailableProcessors
 
-  private val profileInterval = conf.getTimeAsMs("spark.tracing.cpu.profilingInterval", "3s")
+  private val profileInterval = conf.getTimeAsMs("spark.tracing.profilingInterval", "3s")
 
-  private val cpuProfileExecutor =
+  private val cpuProfileThread =
     ThreadUtils.newDaemonSingleThreadScheduledExecutor("cpu-profile-executor")
 
   // called only after the task is started
@@ -115,7 +115,7 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
     val profileTask = new Runnable() {
       override def run(): Unit = Utils.logUncaughtExceptions(profileAllTasksCpuUsage())
     }
-    cpuProfileExecutor.scheduleAtFixedRate(
+    cpuProfileThread.scheduleAtFixedRate(
       profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
   }
 }

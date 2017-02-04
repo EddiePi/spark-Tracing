@@ -244,10 +244,6 @@ private[spark] class Executor(
       Thread.interrupted()
     }
 
-    private def registerRunner(): Unit = {
-
-    }
-
     // Edit by Eddie
     var runnableThreadId: Long = _
     // move out of run()
@@ -270,7 +266,7 @@ private[spark] class Executor(
       startGCTime = computeTotalGcTime()
       // Edit by Eddie
       runnableThreadId = Thread.currentThread().getId
-      taskProfileManager.registerTask(taskId, task, runnableThreadId)
+
 
       var taskStartCpu: Long = 0
       try {
@@ -298,7 +294,9 @@ private[spark] class Executor(
 
         logDebug("Task " + taskId + "'s epoch is " + task.epoch)
         env.mapOutputTracker.updateEpoch(task.epoch)
-
+        // Edit by Eddie
+        // now we desireialized the task, we can register it with the profiler
+        taskProfileManager.registerTask(taskId, task, runnableThreadId, task.getTaskMemoryMananger)
         // Run the actual task and measure its runtime.
         taskStart = System.currentTimeMillis()
         taskStartCpu = if (threadMXBean.isCurrentThreadCpuTimeSupported) {

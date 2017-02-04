@@ -3,8 +3,9 @@ package org.apache.spark.executor
 
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 
-import org.apache.spark.{SparkEnv}
+import org.apache.spark.SparkEnv
 import org.apache.spark.internal.Logging
+import org.apache.spark.memory.TaskMemoryManager
 import org.apache.spark.scheduler.Task
 import org.apache.spark.tracing.TaskInfo
 import org.apache.spark.util.{ThreadUtils, Utils}
@@ -22,7 +23,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   val taskCpuProfiler: TaskCpuProfiler = new TaskCpuProfiler(conf)
 
   // TODO: this profiler is under construction
-  val taskMemoryProfiler: TaskMemoryProfiler = new TaskMemoryProfiler(conf)
+  val taskMemoryProfiler: TaskMemoryProfiler = new TaskMemoryProfiler(env)
 
   taskCpuProfiler.start()
 
@@ -30,7 +31,11 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   // Tracing heartbeat
   private val tracingHeartbeater = ThreadUtils.newDaemonSingleThreadScheduledExecutor("tracing-heartbeater")
 
-  @volatile def registerTask(taskId: Long, task: Task[Any], threadId: Long): Unit = {
+  @volatile def registerTask(taskId: Long,
+                             task: Task[Any],
+                             threadId: Long,
+                             taskMemoryManager: TaskMemoryManager
+                            ): Unit = {
     if (!runningTasks.contains(taskId)) {
       runningTasks.put(taskId, new TaskInfo(
         taskId,
@@ -45,7 +50,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
         "RUNNING"
       ))
       taskCpuProfiler.registerTask(taskId, threadId)
-      taskMemoryProfiler.registerTask(taskId)
+      taskMemoryProfiler.registerTask(taskId, taskMemoryManager)
     }
   }
 
@@ -77,7 +82,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   /**
     * collect and prepare the task tracing information
     */
-  private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
+  @volatile private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
     val valueIterator = runningTasks.values().iterator()
     while (valueIterator.hasNext) {
