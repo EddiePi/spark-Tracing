@@ -118,4 +118,9 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
     cpuProfileThread.scheduleAtFixedRate(
       profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
   }
+
+  // report unreported tasks
+  private[executor] def stop(): Unit = {
+    cpuProfileThread.shutdown()
+  }
 }

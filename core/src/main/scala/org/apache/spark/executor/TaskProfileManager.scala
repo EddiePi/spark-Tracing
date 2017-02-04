@@ -98,7 +98,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   }
 
   // Edit by Eddie
-  private def reportTracingHeartbeat(): Unit = {
+  private def reportTracingInfo(): Unit = {
     val taskSet = prepareTaskTracingInfo()
     for (taskInfo <- taskSet) {
       logDebug("reporting tracing heartbeat. Size of taskSet is: " + taskSet.size)
@@ -114,9 +114,15 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
 
     val heartbeatTask = new Runnable() {
-      override def run(): Unit = Utils.logUncaughtExceptions(reportTracingHeartbeat())
+      override def run(): Unit = Utils.logUncaughtExceptions(reportTracingInfo())
     }
     tracingHeartbeater.scheduleAtFixedRate(
       heartbeatTask, initialDelay, intervalMs, TimeUnit.MILLISECONDS)
+  }
+
+  def stop(): Unit = {
+    taskCpuProfiler.stop()
+    tracingHeartbeater.shutdown()
+    reportTracingInfo()
   }
 }
