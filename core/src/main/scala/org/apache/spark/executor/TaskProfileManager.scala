@@ -51,6 +51,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       ))
       taskCpuProfiler.registerTask(taskId, threadId)
       taskMemoryProfiler.registerTask(taskId, taskMemoryManager)
+      logDebug("task: %d is registered".format(taskId))
     }
   }
 
@@ -75,6 +76,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       if (!unreportedTasks.contains(taskId)) {
         unreportedTasks.put(taskId, taskInfo)
       }
+      logDebug("task: %d is unregistered".format(taskId))
     }
   }
 
@@ -82,9 +84,13 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   /**
     * collect and prepare the task tracing information
     */
-  @volatile private def prepareRunningTaskTracingInfo(): mutable.Set[TaskInfo] = {
+  @volatile private def prepareTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
-    val valueIterator = runningTasks.values().iterator()
+    var valueIterator = runningTasks.values().iterator()
+    while (valueIterator.hasNext) {
+      taskSet.add(valueIterator.next())
+    }
+    valueIterator = unreportedTasks.values().iterator()
     while (valueIterator.hasNext) {
       taskSet.add(valueIterator.next())
     }
@@ -93,7 +99,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
 
   // Edit by Eddie
   private def reportTracingHeartbeat(): Unit = {
-    val taskSet = prepareRunningTaskTracingInfo()
+    val taskSet = prepareTaskTracingInfo()
     for (taskInfo <- taskSet) {
       logDebug("reporting tracing heartbeat. Size of taskSet is: " + taskSet.size)
       tracingManager.createOrUpdateTaskInfo(taskInfo)
