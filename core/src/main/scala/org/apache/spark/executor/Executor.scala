@@ -461,10 +461,10 @@ private[spark] class Executor(
           }
 
       } finally {
-        runningTasks.remove(taskId)
-
         // Edit by Eddie
         taskProfileManager.unregisterTask(taskId, status)
+
+        runningTasks.remove(taskId)
       }
     }
   }

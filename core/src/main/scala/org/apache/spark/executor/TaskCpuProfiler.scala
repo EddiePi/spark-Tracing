@@ -68,7 +68,9 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
     if (taskIdToCpuUsage.containsKey(taskId)) {
       taskIdToCpuUsage.get(taskId)
     } else if (unreportedTaskIdToCpuUsage.contains(taskId)) {
-      unreportedTaskIdToCpuUsage.remove(taskId)
+      val cpuUsage = unreportedTaskIdToCpuUsage.remove(taskId)
+      logDebug("reporting unreported task: " + taskId + " cpu usage: " + cpuUsage)
+      cpuUsage
     } else {
       -1D
     }

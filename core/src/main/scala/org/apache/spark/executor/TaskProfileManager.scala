@@ -86,13 +86,19 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     */
   @volatile private def prepareTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
-    var valueIterator = runningTasks.values().iterator()
-    while (valueIterator.hasNext) {
-      taskSet.add(valueIterator.next())
+    val runningIterator = runningTasks.keySet().iterator()
+    while (runningIterator.hasNext) {
+      val key = runningIterator.next()
+      val taskInfo = runningTasks.get(key)
+      taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
+      taskSet.add(taskInfo)
     }
-    valueIterator = unreportedTasks.values().iterator()
-    while (valueIterator.hasNext) {
-      taskSet.add(valueIterator.next())
+    val unreportedIterator = unreportedTasks.keySet().iterator()
+    while (unreportedIterator.hasNext) {
+      val key = unreportedIterator.next()
+      val taskInfo = unreportedTasks.get(key)
+      taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
+      taskSet.add(unreportedTasks.remove(key))
     }
     taskSet
   }
