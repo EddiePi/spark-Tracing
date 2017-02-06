@@ -129,6 +129,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   def stop(): Unit = {
     taskCpuProfiler.stop()
     tracingHeartbeater.shutdown()
+    tracingHeartbeater.awaitTermination(10, TimeUnit.SECONDS)
     reportTracingInfo()
   }
 }

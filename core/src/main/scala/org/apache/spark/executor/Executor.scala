@@ -183,6 +183,7 @@ private[spark] class Executor(
     env.metricsSystem.report()
     heartbeater.shutdown()
     heartbeater.awaitTermination(10, TimeUnit.SECONDS)
+    taskProfileManager.stop()
     threadPool.shutdown()
     if (!isLocal) {
       env.stop()

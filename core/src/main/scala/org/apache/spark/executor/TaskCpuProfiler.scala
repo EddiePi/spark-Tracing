@@ -125,5 +125,6 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
   // report unreported tasks
   private[executor] def stop(): Unit = {
     cpuProfileThread.shutdown()
+    cpuProfileThread.awaitTermination(10, TimeUnit.SECONDS)
   }
 }
