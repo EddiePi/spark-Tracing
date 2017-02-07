@@ -8,7 +8,11 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.memory.TaskMemoryManager
 import org.apache.spark.util.{ThreadUtils, Utils}
 
-
+ /*
+  * only periodically profile execution memory
+  * storage memory is set when job about to write
+  *
+  */
 class TaskMemoryProfiler (env: SparkEnv) extends Logging {
   val conf = env.conf
   val memoryManager = env.memoryManager
@@ -18,7 +22,7 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
   val taskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
 
   val unreportedTaskIdToExecMemory = new ConcurrentHashMap[Long, Long]
-  val unreportedTaskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
+  // val unreportedTaskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
 
   private val profileInterval = conf.getTimeAsMs("spark.tracing.profilingInterval", "3s")
 
@@ -35,26 +39,25 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
     if (taskIdToManager.containsKey(taskId)) {
       taskIdToManager.remove(taskId)
       taskIdToExecMemory.remove(taskId)
-      taskIdToStoreMemory.remove(taskId)
+      if (taskIdToStoreMemory.contains(taskId)) {
+        taskIdToStoreMemory.remove(taskId)
+      }
 
-      // TODO: Profile again here
-      val (execMem, storeMem) = profileOneTaskMemory(taskId)
+      val execMem = profileOneTaskExecMemory(taskId)
       unreportedTaskIdToExecMemory.put(taskId, execMem)
-      unreportedTaskIdToStoreMemory.put(taskId, storeMem)
     }
   }
 
-  private def profileAllTasksMemoryUsage(): Unit = {
-
+  private def profileAllTasksExecMemoryUsage(): Unit = {
+    val keyIterator = taskIdToManager.keySet().iterator()
+    while (keyIterator.hasNext) {
+      val key = keyIterator.next()
+      taskIdToExecMemory.put(key, profileOneTaskExecMemory(key))
+    }
   }
 
-  @volatile private def profileOneTaskMemory (taskId: Long): (Long, Long) = {
-    (-1L, -1L)
-  }
-
-  private def profileTaskExecMemory(taskId: Long): Long = {
-    val taskMemoryManager = taskIdToManager.get(taskId)
-    return taskMemoryManager.getMemoryConsumptionForThisTask
+  private def profileOneTaskExecMemory(taskId: Long): Long = {
+    taskIdToManager.get(taskId).getMemoryConsumptionForThisTask
   }
 
   private[executor] def start(): Unit = {
@@ -64,13 +67,13 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
     val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
 
     val profileTask = new Runnable() {
-      override def run(): Unit = Utils.logUncaughtExceptions(profileAllTasksMemoryUsage())
+      override def run(): Unit = Utils.logUncaughtExceptions(profileAllTasksExecMemoryUsage())
     }
     memoryProfileThread.scheduleAtFixedRate(
       profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
   }
 
-  def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
-
+  @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
+    taskIdToStoreMemory.put(taskId, size)
   }
 }
