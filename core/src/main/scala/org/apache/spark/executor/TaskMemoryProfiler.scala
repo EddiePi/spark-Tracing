@@ -69,4 +69,8 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
     memoryProfileThread.scheduleAtFixedRate(
       profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
   }
+
+  def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
+
+  }
 }

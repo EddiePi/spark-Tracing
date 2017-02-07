@@ -298,6 +298,9 @@ private[spark] class Executor(
         // Edit by Eddie
         // now we desireialized the task, we can register it with the profiler
         taskProfileManager.registerTask(taskId, task, runnableThreadId, task.getTaskMemoryMananger)
+        // set the reference of taskMemoryProfiler to the task
+        task.setTaskMemoryProfiler(taskProfileManager.taskMemoryProfiler)
+        task.setTaskId(taskId)
         // Run the actual task and measure its runtime.
         taskStart = System.currentTimeMillis()
         taskStartCpu = if (threadMXBean.isCurrentThreadCpuTimeSupported) {

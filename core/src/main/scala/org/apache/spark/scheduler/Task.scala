@@ -23,9 +23,8 @@ import java.util.Properties
 
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
-
 import org.apache.spark._
-import org.apache.spark.executor.TaskMetrics
+import org.apache.spark.executor.{TaskMemoryProfiler, TaskMetrics}
 import org.apache.spark.memory.{MemoryMode, TaskMemoryManager}
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.serializer.SerializerInstance
@@ -126,6 +125,19 @@ private[spark] abstract class Task[T](
         TaskContext.unset()
       }
     }
+  }
+
+  // Edit by Eddie
+  protected var taskMemoryProfiler: TaskMemoryProfiler = _
+
+  protected var taskId: Long = _
+
+  def setTaskMemoryProfiler(taskMemoryProfiler: TaskMemoryProfiler): Unit = {
+    this.taskMemoryProfiler = taskMemoryProfiler
+  }
+
+  def setTaskId(taskId: Long): Unit = {
+    this.taskId = taskId
   }
 
   private var taskMemoryManager: TaskMemoryManager = _
