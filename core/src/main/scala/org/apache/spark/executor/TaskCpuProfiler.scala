@@ -44,9 +44,12 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
 
   @volatile def unregisterTask(taskId: Long): Unit = {
     val threadId = taskIdToThreadId.get(taskId)
-    logDebug("unregistered task: " + taskId + " thread: " + threadId)
-    if (taskIdToThreadId.get(taskId) == threadId && threadIdToPrevCpuTime.containsKey(threadId)) {
+
+    if (threadIdToPrevCpuTime.containsKey(threadId)) {
       unreportedTaskIdToCpuUsage.put(taskId, profileOneTaskCpuUsage(taskId))
+      logDebug("unregistered task: " + taskId +
+        " thread: " + threadId +
+        " cpu usage: " + unreportedTaskIdToCpuUsage.get(taskId))
     }
     // remove the finished task from these map
     taskIdToThreadId.remove(taskId)
@@ -66,8 +69,10 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
 
   @volatile def getTaskCpuUsage(taskId: Long): Double = {
     if (taskIdToCpuUsage.containsKey(taskId)) {
-      taskIdToCpuUsage.get(taskId)
-    } else if (unreportedTaskIdToCpuUsage.contains(taskId)) {
+      val cpuUsage = taskIdToCpuUsage.get(taskId)
+      logDebug("reporting running task: " + taskId + " cpu usage: " + cpuUsage)
+      cpuUsage
+    } else if (unreportedTaskIdToCpuUsage.containsKey(taskId)) {
       val cpuUsage = unreportedTaskIdToCpuUsage.remove(taskId)
       logDebug("reporting unreported task: " + taskId + " cpu usage: " + cpuUsage)
       cpuUsage

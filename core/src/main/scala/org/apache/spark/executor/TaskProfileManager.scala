@@ -36,7 +36,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
                              threadId: Long,
                              taskMemoryManager: TaskMemoryManager
                             ): Unit = {
-    if (!runningTasks.contains(taskId)) {
+    if (!runningTasks.containsKey(taskId)) {
       runningTasks.put(taskId, new TaskInfo(
         taskId,
         task.stageId,
@@ -62,20 +62,22 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   @volatile def unregisterTask(taskId: Long, status: String): Unit = {
     if (runningTasks.containsKey(taskId)) {
       val taskInfo = runningTasks.get(taskId)
-      runningTasks.remove(taskId)
-
-      // First we unregister the task from the profiler.
-      // in the unregister process the profiler will also mark the task as finished.
-      taskCpuProfiler.unregisterTask(taskId)
-      taskMemoryProfiler.unregisterTask(taskId)
       // update taskInfo when task finished.
       taskInfo.finishTime = System.currentTimeMillis()
       taskInfo.status = status
+
+      runningTasks.remove(taskId)
+
+      // First we unregister the task from the profiler.
+      // the profiler will also mark the task as finished.
+      taskCpuProfiler.unregisterTask(taskId)
+      taskMemoryProfiler.unregisterTask(taskId)
+
       // we get the unreported task info from prepareTaskTracingInfo method.
       // do not get the unreported task info twice, otherwise causes cpu usage to be -1
       // taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(taskId)
 
-      if (!unreportedTasks.contains(taskId)) {
+      if (!unreportedTasks.containsKey(taskId)) {
         unreportedTasks.put(taskId, taskInfo)
       }
       logDebug("task: %d is unregistered".format(taskId))

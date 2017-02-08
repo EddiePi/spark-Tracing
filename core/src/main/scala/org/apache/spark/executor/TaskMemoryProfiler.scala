@@ -30,14 +30,14 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
      ThreadUtils.newDaemonSingleThreadScheduledExecutor("cpu-profile-executor")
 
    @volatile def registerTask(taskId: Long, taskMemoryManager: TaskMemoryManager): Unit = {
-     if (!taskIdToManager.contains(taskId)) {
+     if (!taskIdToManager.containsKey(taskId)) {
        taskIdToManager.put(taskId, taskMemoryManager)
      }
    }
 
    @volatile def unregisterTask(taskId: Long): Unit = {
      if (taskIdToManager.containsKey(taskId)) {
-       if (taskIdToStoreMemory.contains(taskId)) {
+       if (taskIdToStoreMemory.containsKey(taskId)) {
          taskIdToStoreMemory.remove(taskId)
        }
        val execMem = profileOneTaskExecMemory(taskId)
@@ -49,7 +49,7 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
 
    def getTaskStoreMemoryUsage(taskId: Long): Long = {
      val storeMem = {
-       if (taskIdToStoreMemory.contains(taskId)) {
+       if (taskIdToStoreMemory.containsKey(taskId)) {
          taskIdToStoreMemory.get(taskId)
        } else {
          -1L
@@ -60,9 +60,9 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
 
    def getTaskExecMemoryUsage(taskId: Long): Long = {
      val execMem = {
-       if (taskIdToExecMemory.contains(taskId)) {
+       if (taskIdToExecMemory.containsKey(taskId)) {
          taskIdToExecMemory.get(taskId)
-       } else if (unreportedTaskIdToExecMemory.contains(taskId)) {
+       } else if (unreportedTaskIdToExecMemory.containsKey(taskId)) {
          // if the task is finished but unreported, we delete its storage memory record
          taskIdToStoreMemory.remove(taskId)
          unreportedTaskIdToExecMemory.get(taskId)
