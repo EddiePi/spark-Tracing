@@ -37,14 +37,13 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
 
    @volatile def unregisterTask(taskId: Long): Unit = {
      if (taskIdToManager.containsKey(taskId)) {
-       taskIdToManager.remove(taskId)
-       taskIdToExecMemory.remove(taskId)
        if (taskIdToStoreMemory.contains(taskId)) {
          taskIdToStoreMemory.remove(taskId)
        }
-
        val execMem = profileOneTaskExecMemory(taskId)
        unreportedTaskIdToExecMemory.put(taskId, execMem)
+       taskIdToManager.remove(taskId)
+       taskIdToExecMemory.remove(taskId)
      }
    }
 
