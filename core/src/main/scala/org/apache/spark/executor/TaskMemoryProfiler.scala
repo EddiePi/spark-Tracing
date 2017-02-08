@@ -14,66 +14,89 @@ import org.apache.spark.util.{ThreadUtils, Utils}
   *
   */
 class TaskMemoryProfiler (env: SparkEnv) extends Logging {
-  val conf = env.conf
-  val memoryManager = env.memoryManager
+   val conf = env.conf
+   val memoryManager = env.memoryManager
 
-  val taskIdToManager = new ConcurrentHashMap[Long, TaskMemoryManager]
-  val taskIdToExecMemory = new ConcurrentHashMap[Long, Long]
-  val taskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
+   val taskIdToManager = new ConcurrentHashMap[Long, TaskMemoryManager]
+   val taskIdToExecMemory = new ConcurrentHashMap[Long, Long]
+   val taskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
 
-  val unreportedTaskIdToExecMemory = new ConcurrentHashMap[Long, Long]
-  // val unreportedTaskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
+   val unreportedTaskIdToExecMemory = new ConcurrentHashMap[Long, Long]
+   // val unreportedTaskIdToStoreMemory = new ConcurrentHashMap[Long, Long]
 
-  private val profileInterval = conf.getTimeAsMs("spark.tracing.profilingInterval", "3s")
+   private val profileInterval = conf.getTimeAsMs("spark.tracing.profilingInterval", "3s")
 
-  private val memoryProfileThread =
-    ThreadUtils.newDaemonSingleThreadScheduledExecutor("cpu-profile-executor")
+   private val memoryProfileThread =
+     ThreadUtils.newDaemonSingleThreadScheduledExecutor("cpu-profile-executor")
 
-  @volatile def registerTask (taskId: Long, taskMemoryManager: TaskMemoryManager): Unit = {
-    if (!taskIdToManager.contains(taskId)) {
-      taskIdToManager.put(taskId, taskMemoryManager)
-    }
-  }
+   @volatile def registerTask(taskId: Long, taskMemoryManager: TaskMemoryManager): Unit = {
+     if (!taskIdToManager.contains(taskId)) {
+       taskIdToManager.put(taskId, taskMemoryManager)
+     }
+   }
 
-  @volatile def unregisterTask (taskId: Long): Unit = {
-    if (taskIdToManager.containsKey(taskId)) {
-      taskIdToManager.remove(taskId)
-      taskIdToExecMemory.remove(taskId)
-      if (taskIdToStoreMemory.contains(taskId)) {
-        taskIdToStoreMemory.remove(taskId)
-      }
+   @volatile def unregisterTask(taskId: Long): Unit = {
+     if (taskIdToManager.containsKey(taskId)) {
+       taskIdToManager.remove(taskId)
+       taskIdToExecMemory.remove(taskId)
+       if (taskIdToStoreMemory.contains(taskId)) {
+         taskIdToStoreMemory.remove(taskId)
+       }
 
-      val execMem = profileOneTaskExecMemory(taskId)
-      unreportedTaskIdToExecMemory.put(taskId, execMem)
-    }
-  }
+       val execMem = profileOneTaskExecMemory(taskId)
+       unreportedTaskIdToExecMemory.put(taskId, execMem)
+     }
+   }
 
-  private def profileAllTasksExecMemoryUsage(): Unit = {
-    val keyIterator = taskIdToManager.keySet().iterator()
-    while (keyIterator.hasNext) {
-      val key = keyIterator.next()
-      taskIdToExecMemory.put(key, profileOneTaskExecMemory(key))
-    }
-  }
+   def getTaskMemoryUsage(taskId: Long): (Long, Long) = {
+     val storeMem = {
+       if (taskIdToStoreMemory.contains(taskId)) {
+         taskIdToStoreMemory.get(taskId)
+       } else {
+         -1L
+       }
+     }
 
-  private def profileOneTaskExecMemory(taskId: Long): Long = {
-    taskIdToManager.get(taskId).getMemoryConsumptionForThisTask
-  }
+     val execMem = {
+       if (taskIdToExecMemory.contains(taskId)) {
+         taskIdToExecMemory.get(taskId)
+       } else if (unreportedTaskIdToExecMemory.contains(taskId)) {
+         // if the task is finished but unreported, we delete its storage memory record
+         taskIdToStoreMemory.remove(taskId)
+         unreportedTaskIdToExecMemory.get(taskId)
+       } else {
+         -1L
+       }
+     }
+     (execMem, storeMem)
+   }
 
-  private[executor] def start(): Unit = {
-    val intervalMs = profileInterval
+   private def profileAllTasksExecMemoryUsage(): Unit = {
+     val keyIterator = taskIdToManager.keySet().iterator()
+     while (keyIterator.hasNext) {
+       val key = keyIterator.next()
+       taskIdToExecMemory.put(key, profileOneTaskExecMemory(key))
+     }
+   }
 
-    // Wait a random interval so the heartbeats don't end up in sync
-    val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
+   private def profileOneTaskExecMemory(taskId: Long): Long = {
+     taskIdToManager.get(taskId).getMemoryConsumptionForThisTask
+   }
 
-    val profileTask = new Runnable() {
-      override def run(): Unit = Utils.logUncaughtExceptions(profileAllTasksExecMemoryUsage())
-    }
-    memoryProfileThread.scheduleAtFixedRate(
-      profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
-  }
+   private[executor] def start(): Unit = {
+     val intervalMs = profileInterval
 
-  @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
-    taskIdToStoreMemory.put(taskId, size)
-  }
-}
+     // Wait a random interval so the heartbeats don't end up in sync
+     val initialDelay = intervalMs + (math.random * intervalMs).asInstanceOf[Int]
+
+     val profileTask = new Runnable() {
+       override def run(): Unit = Utils.logUncaughtExceptions(profileAllTasksExecMemoryUsage())
+     }
+     memoryProfileThread.scheduleAtFixedRate(
+       profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
+   }
+
+   @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
+     taskIdToStoreMemory.put(taskId, size)
+   }
+ }

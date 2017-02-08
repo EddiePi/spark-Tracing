@@ -70,7 +70,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       // update taskInfo when task finished.
       taskInfo.finishTime = System.currentTimeMillis()
       taskInfo.status = status
-      taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(taskId)
+      // we get the unreported task info from prepareTaskTracingInfo method.
+      // do not get the unreported task info twice, otherwise causes cpu usage to be -1
+      // taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(taskId)
       // TODO: update memory usage
 
       if (!unreportedTasks.contains(taskId)) {
@@ -89,16 +91,23 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     val runningIterator = runningTasks.keySet().iterator()
     while (runningIterator.hasNext) {
       val key = runningIterator.next()
-      val taskInfo = runningTasks.get(key)
-      taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
-      taskSet.add(taskInfo)
+      val runningTaskInfo = runningTasks.get(key)
+      // get the cpu usage
+      runningTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
+      // get the memory usage
+      (runningTaskInfo.execMemory, runningTaskInfo.storeMemory) =
+        taskMemoryProfiler.getTaskMemoryUsage(key)
+      taskSet.add(runningTaskInfo)
     }
     val unreportedIterator = unreportedTasks.keySet().iterator()
     while (unreportedIterator.hasNext) {
       val key = unreportedIterator.next()
-      val taskInfo = unreportedTasks.get(key)
-      taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
-      taskSet.add(unreportedTasks.remove(key))
+      val unreportedTaskInfo = unreportedTasks.get(key)
+      // get the cpu usage
+      unreportedTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
+      (unreportedTaskInfo.execMemory, unreportedTaskInfo.storeMemory) =
+        taskMemoryProfiler.getTaskMemoryUsage(key)
+      taskSet.add(unreportedTaskInfo)
     }
     taskSet
   }
