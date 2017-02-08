@@ -488,9 +488,10 @@ private[spark] class TaskSetManager(
             task.jobId.getOrElse(-1),
             task.appId.getOrElse("unanimous-app"),
             System.currentTimeMillis(),
-            0,
-            0.0,
-            0,
+            -1L,
+            0.0D,
+            0L,
+            0L,
           "RUNNING"))
         new TaskDescription(taskId = taskId, attemptNumber = attemptNum, execId,
           taskName, index, serializedTask)
