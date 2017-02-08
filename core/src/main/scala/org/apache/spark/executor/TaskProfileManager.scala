@@ -73,7 +73,6 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       // we get the unreported task info from prepareTaskTracingInfo method.
       // do not get the unreported task info twice, otherwise causes cpu usage to be -1
       // taskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(taskId)
-      // TODO: update memory usage
 
       if (!unreportedTasks.contains(taskId)) {
         unreportedTasks.put(taskId, taskInfo)
@@ -102,7 +101,8 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     val unreportedIterator = unreportedTasks.keySet().iterator()
     while (unreportedIterator.hasNext) {
       val key = unreportedIterator.next()
-      val unreportedTaskInfo = unreportedTasks.get(key)
+      // we remove the unreported tasks once they get a change to report
+      val unreportedTaskInfo = unreportedTasks.remove(key)
       // get the cpu usage
       unreportedTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
       (unreportedTaskInfo.execMemory, unreportedTaskInfo.storeMemory) =
