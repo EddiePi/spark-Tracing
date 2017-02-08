@@ -48,7 +48,7 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
      }
    }
 
-   def getTaskMemoryUsage(taskId: Long): (Long, Long) = {
+   def getTaskStoreMemoryUsage(taskId: Long): Long = {
      val storeMem = {
        if (taskIdToStoreMemory.contains(taskId)) {
          taskIdToStoreMemory.get(taskId)
@@ -56,7 +56,10 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
          -1L
        }
      }
+     storeMem
+   }
 
+   def getTaskExecMemoryUsage(taskId: Long): Long = {
      val execMem = {
        if (taskIdToExecMemory.contains(taskId)) {
          taskIdToExecMemory.get(taskId)
@@ -68,7 +71,7 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
          -1L
        }
      }
-     (execMem, storeMem)
+     execMem
    }
 
    private def profileAllTasksExecMemoryUsage(): Unit = {

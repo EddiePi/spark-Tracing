@@ -95,7 +95,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       // get the cpu usage
       runningTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
       // get the memory usage
-      (runningTaskInfo.execMemory, runningTaskInfo.storeMemory) = taskMemoryProfiler.getTaskMemoryUsage(key)
+      // we have to get storage memory first
+      runningTaskInfo.storeMemory = taskMemoryProfiler.getTaskStoreMemoryUsage(key)
+      runningTaskInfo.execMemory = taskMemoryProfiler.getTaskExecMemoryUsage(key)
       taskSet.add(runningTaskInfo)
     }
     val unreportedIterator = unreportedTasks.keySet().iterator()
@@ -105,7 +107,8 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       val unreportedTaskInfo = unreportedTasks.remove(key)
       // get the cpu usage
       unreportedTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
-      (unreportedTaskInfo.execMemory, unreportedTaskInfo.storeMemory) = taskMemoryProfiler.getTaskMemoryUsage(key)
+      unreportedTaskInfo.storeMemory = taskMemoryProfiler.getTaskStoreMemoryUsage(key)
+      unreportedTaskInfo.execMemory = taskMemoryProfiler.getTaskExecMemoryUsage(key)
       taskSet.add(unreportedTaskInfo)
     }
     taskSet
