@@ -88,6 +88,11 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
      execMem
    }
 
+   // called in ShuffleMapTask and ResultTask
+   @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
+     taskIdToStoreMemory.put(taskId, size)
+   }
+
    private[executor] def start(): Unit = {
      val intervalMs = profileInterval
 
@@ -101,8 +106,8 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
        profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
    }
 
-   // called in ShuffleMapTask and ResultTask
-   @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
-     taskIdToStoreMemory.put(taskId, size)
+   @volatile def stop(): Unit = {
+     memoryProfileThread.shutdown()
+     memoryProfileThread.awaitTermination(10, TimeUnit.SECONDS)
    }
  }

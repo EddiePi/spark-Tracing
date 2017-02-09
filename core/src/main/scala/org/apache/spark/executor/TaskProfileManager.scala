@@ -26,6 +26,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   val taskMemoryProfiler: TaskMemoryProfiler = new TaskMemoryProfiler(env)
 
   taskCpuProfiler.start()
+  taskMemoryProfiler.start()
 
   // Edit by Eddie
   // Tracing heartbeat
@@ -143,6 +144,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
 
   def stop(): Unit = {
     taskCpuProfiler.stop()
+    taskMemoryProfiler.stop()
     tracingHeartbeater.shutdown()
     tracingHeartbeater.awaitTermination(10, TimeUnit.SECONDS)
     reportTracingInfo()

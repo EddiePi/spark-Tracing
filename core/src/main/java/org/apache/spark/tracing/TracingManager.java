@@ -36,8 +36,6 @@ public class TracingManager {
         isTracingEnabled = conf.getBoolean("spark.tracing.enabled", false);
     }
 
-    /** establish connection */
-
     /** transfer a new job to the server */
     public void createOrUpdateJobInfo(JobInfo jobInfo) {
         if (!isTracingEnabled) {
