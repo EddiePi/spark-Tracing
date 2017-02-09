@@ -37,27 +37,16 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
 
    @volatile def unregisterTask(taskId: Long): Unit = {
      if (taskIdToManager.containsKey(taskId)) {
-       if (taskIdToStoreMemory.containsKey(taskId)) {
-         taskIdToStoreMemory.remove(taskId)
-       }
        val execMem = profileOneTaskExecMemory(taskId)
        unreportedTaskIdToExecMemory.put(taskId, execMem)
+       // TaskMemoryManager can be released this time since it's part of a Task
        taskIdToManager.remove(taskId)
-       taskIdToExecMemory.remove(taskId)
      }
    }
 
-   def getTaskStoreMemoryUsage(taskId: Long): Long = {
-     val storeMem = {
-       if (taskIdToStoreMemory.containsKey(taskId)) {
-         taskIdToStoreMemory.get(taskId)
-       } else {
-         -1L
-       }
-     }
-     storeMem
-   }
 
+   // this following methods only read the memory record from the Map.
+   // do NOT profile again in these methods.
    def getTaskExecMemoryUsage(taskId: Long): Long = {
      val execMem = {
        if (taskIdToExecMemory.containsKey(taskId)) {
@@ -71,6 +60,18 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
        }
      }
      execMem
+   }
+
+   // in each heartbeat, this method must be called after the previous method.
+   def getTaskStoreMemoryUsage(taskId: Long): Long = {
+     val storeMem = {
+       if (taskIdToStoreMemory.containsKey(taskId)) {
+         taskIdToStoreMemory.get(taskId)
+       } else {
+         -1L
+       }
+     }
+     storeMem
    }
 
    private def profileAllTasksExecMemoryUsage(): Unit = {
