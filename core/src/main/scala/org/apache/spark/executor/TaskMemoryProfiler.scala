@@ -78,12 +78,14 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
      val keyIterator = taskIdToManager.keySet().iterator()
      while (keyIterator.hasNext) {
        val key = keyIterator.next()
-       taskIdToExecMemory.put(key, profileOneTaskExecMemory(key))
+       profileOneTaskExecMemory(key)
      }
    }
 
    private def profileOneTaskExecMemory(taskId: Long): Long = {
-     taskIdToManager.get(taskId).getMemoryConsumptionForThisTask
+     val execMem = taskIdToManager.get(taskId).getMemoryConsumptionForThisTask
+     taskIdToExecMemory.put(taskId, execMem)
+     execMem
    }
 
    private[executor] def start(): Unit = {
@@ -99,6 +101,7 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
        profileTask, initialDelay, profileInterval, TimeUnit.MILLISECONDS)
    }
 
+   // called in ShuffleMapTask and ResultTask
    @volatile def setTaskStoreMemory(taskId: Long, size: Long): Unit = {
      taskIdToStoreMemory.put(taskId, size)
    }

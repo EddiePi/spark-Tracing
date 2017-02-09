@@ -45,9 +45,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
         task.appId.getOrElse("anonymous-app"),
         System.currentTimeMillis(),
         -1L,
-        0.0D,
-        0L,
-        0L,
+        -1.0D,
+        -1L,
+        -1L,
         "RUNNING"
       ))
       taskCpuProfiler.registerTask(taskId, threadId)
@@ -90,6 +90,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
     */
   @volatile private def prepareTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
+    // prepare running tasks
     val runningIterator = runningTasks.keySet().iterator()
     while (runningIterator.hasNext) {
       val key = runningIterator.next()
@@ -102,6 +103,7 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       runningTaskInfo.execMemory = taskMemoryProfiler.getTaskExecMemoryUsage(key)
       taskSet.add(runningTaskInfo)
     }
+    // prepare unreported tasks
     val unreportedIterator = unreportedTasks.keySet().iterator()
     while (unreportedIterator.hasNext) {
       val key = unreportedIterator.next()

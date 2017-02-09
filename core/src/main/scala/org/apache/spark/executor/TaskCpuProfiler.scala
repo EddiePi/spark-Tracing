@@ -39,7 +39,6 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
     logDebug("registered task: " + taskId + " thread: " + threadId)
     taskIdToThreadId.put(taskId, threadId)
     updatePrevTimesForThread(threadId)
-    taskIdToCpuUsage.put(taskId, 0D)
   }
 
   @volatile def unregisterTask(taskId: Long): Unit = {
@@ -88,8 +87,7 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
     logDebug("number of keys: " + taskIdToThreadId.size())
     while (keyIterator.hasNext) {
       val key = keyIterator.next()
-      taskIdToCpuUsage.put(key,
-        profileOneTaskCpuUsage(key))
+      profileOneTaskCpuUsage(key)
     }
   }
 
