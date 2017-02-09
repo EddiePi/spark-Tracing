@@ -26,6 +26,7 @@ import org.apache.spark._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.rdd.RDD
+import org.apache.spark.util.SizeEstimator
 
 /**
  * A task that sends back the output to the driver application.
@@ -83,8 +84,9 @@ private[spark] class ResultTask[T, U](
     _executorDeserializeCpuTime = if (threadMXBean.isCurrentThreadCpuTimeSupported) {
       threadMXBean.getCurrentThreadCpuTime - deserializeStartCpuTime
     } else 0L
-
-    func(context, rdd.iterator(partition, context))
+    val iter = rdd.iterator(partition, context)
+    taskMemoryProfiler.setTaskStoreMemory(taskId, SizeEstimator.estimate(iter))
+    func(context, iter)
   }
 
   // This is only callable on the driver side.
