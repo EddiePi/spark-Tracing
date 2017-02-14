@@ -75,9 +75,9 @@ class TaskMemoryProfiler (env: SparkEnv) extends Logging {
    }
 
    private def profileAllTasksExecMemoryUsage(): Unit = {
-     val keyIterator = taskIdToManager.keySet().iterator()
-     while (keyIterator.hasNext) {
-       val key = keyIterator.next()
+     val entryIterator = taskIdToManager.entrySet().iterator()
+     while (entryIterator.hasNext) {
+       val key = entryIterator.next().getKey
        profileOneTaskExecMemory(key)
      }
    }

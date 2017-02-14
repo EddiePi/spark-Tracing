@@ -90,9 +90,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   @volatile private def prepareTaskTracingInfo(): mutable.Set[TaskInfo] = {
     val taskSet: mutable.Set[TaskInfo] = new mutable.HashSet[TaskInfo]()
     // prepare running tasks
-    val runningIterator = runningTasks.keySet().iterator()
+    val runningIterator = runningTasks.entrySet().iterator()
     while (runningIterator.hasNext) {
-      val key = runningIterator.next()
+      val key = runningIterator.next().getKey
       val runningTaskInfo = runningTasks.get(key)
       // get the cpu usage
       runningTaskInfo.cpuUsage = taskCpuProfiler.getTaskCpuUsage(key)
@@ -103,9 +103,9 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
       taskSet.add(runningTaskInfo)
     }
     // prepare unreported tasks
-    val unreportedIterator = unreportedTasks.keySet().iterator()
+    val unreportedIterator = unreportedTasks.entrySet().iterator()
     while (unreportedIterator.hasNext) {
-      val key = unreportedIterator.next()
+      val key = unreportedIterator.next().getKey
       // we remove the unreported tasks once they get a change to report
       val unreportedTaskInfo = unreportedTasks.remove(key)
       // get the cpu usage
