@@ -83,10 +83,10 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
   private def profileAllTasksCpuUsage(): Unit = {
 
     // calculate the cpu usage for each thread
-    val keyIterator = taskIdToThreadId.keySet().iterator()
+    val entryIterator = taskIdToThreadId.entrySet().iterator()
     logDebug("number of keys: " + taskIdToThreadId.size())
-    while (keyIterator.hasNext) {
-      val key = keyIterator.next()
+    while (entryIterator.hasNext) {
+      val key = entryIterator.next().getKey
       profileOneTaskCpuUsage(key)
     }
   }

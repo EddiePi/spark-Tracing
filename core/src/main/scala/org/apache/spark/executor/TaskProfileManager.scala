@@ -21,8 +21,6 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   val unreportedTasks = new ConcurrentHashMap[Long, TaskInfo]
 
   val taskCpuProfiler: TaskCpuProfiler = new TaskCpuProfiler(conf)
-
-  // TODO: this profiler is under construction
   val taskMemoryProfiler: TaskMemoryProfiler = new TaskMemoryProfiler(env)
 
   taskCpuProfiler.start()
