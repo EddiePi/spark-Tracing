@@ -33,7 +33,8 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
   @volatile def registerTask(taskId: Long,
                              task: Task[Any],
                              threadId: Long,
-                             taskMemoryManager: TaskMemoryManager
+                             taskMemoryManager: TaskMemoryManager,
+                             containerId: String
                             ): Unit = {
     if (!runningTasks.containsKey(taskId)) {
       runningTasks.put(taskId, new TaskInfo(
@@ -47,7 +48,8 @@ private[executor] class TaskProfileManager (val env: SparkEnv) extends Logging {
         -1.0D,
         -1L,
         -1L,
-        "RUNNING"
+        "RUNNING",
+        containerId
       ))
       taskCpuProfiler.registerTask(taskId, threadId)
       taskMemoryProfiler.registerTask(taskId, taskMemoryManager)

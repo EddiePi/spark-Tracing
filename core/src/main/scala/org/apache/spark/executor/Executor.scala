@@ -143,6 +143,18 @@ private[spark] class Executor(
   private val taskProfileManager = new TaskProfileManager(env)
   taskProfileManager.startTracingHeartbeater()
 
+  private var containerId: String = null
+
+  private def parseContainerName(urlString: String): String = {
+    val strings = urlString.split("/")
+    for(string <- strings) {
+      if (string.matches("container_.*")) {
+        return string
+      }
+    }
+    return null
+  }
+
   def launchTask(
       context: ExecutorBackend,
       taskId: Long,
@@ -297,7 +309,12 @@ private[spark] class Executor(
         env.mapOutputTracker.updateEpoch(task.epoch)
         // Edit by Eddie
         // now we desireialized the task, we can register it with the profiler
-        taskProfileManager.registerTask(taskId, task, runnableThreadId, task.getTaskMemoryMananger)
+        taskProfileManager.registerTask(
+          taskId,
+          task,
+          runnableThreadId,
+          task.getTaskMemoryMananger,
+          containerId)
         // set the reference of taskMemoryProfiler to the task
         task.setTaskMemoryProfiler(taskProfileManager.taskMemoryProfiler)
         task.setTaskId(taskId)
@@ -555,6 +572,11 @@ private[spark] class Executor(
           if (!urlClassLoader.getURLs().contains(url)) {
             logInfo("Adding " + url + " to class loader")
             urlClassLoader.addURL(url)
+            // Edit by Eddie
+            // Set the container's name
+            if (containerId != null) {
+              containerId = parseContainerName(url.toString)
+            }
           }
         }
       }
