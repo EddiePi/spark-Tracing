@@ -145,7 +145,9 @@ private[spark] class Executor(
 
   private var containerId: String = null
 
-  private def parseContainerName(urlString: String): String = {
+  private def parseContainerId(urlString: String): String = {
+    logDebug("dependency string: " + urlString)
+
     val strings = urlString.split("/")
     for(string <- strings) {
       if (string.matches("container_.*")) {
@@ -574,8 +576,8 @@ private[spark] class Executor(
             urlClassLoader.addURL(url)
             // Edit by Eddie
             // Set the container's name
-            if (containerId != null) {
-              containerId = parseContainerName(url.toString)
+            if (containerId == null) {
+              containerId = parseContainerId(url.toString)
             }
           }
         }
