@@ -61,3 +61,8 @@ struct TaskEndEvent {
 	6: string reason;
 }
 
+struct ContainerEvent {
+	1: string containerId;
+	2: string action;	//ADD or REMOVE
+}
+
