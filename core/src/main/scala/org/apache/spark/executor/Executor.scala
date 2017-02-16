@@ -36,7 +36,7 @@ import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.scheduler.{AccumulableInfo, DirectTaskResult, IndirectTaskResult, Task}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
-import org.apache.spark.tracing.{TaskInfo, TracingManager}
+import org.apache.spark.tracing.{ContainerEvent, TaskInfo, TracingManager}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
 
@@ -310,7 +310,7 @@ private[spark] class Executor(
         logDebug("Task " + taskId + "'s epoch is " + task.epoch)
         env.mapOutputTracker.updateEpoch(task.epoch)
         // Edit by Eddie
-        // now we desireialized the task, we can register it with the profiler
+        // now we deserialize the task, we can register it with the profiler
         taskProfileManager.registerTask(
           taskId,
           task,
@@ -578,6 +578,10 @@ private[spark] class Executor(
             // Set the container's name
             if (containerId == null) {
               containerId = parseContainerId(url.toString)
+              // notify the tracing server a new container has been added.
+              env.tracingManager.containerEventNotification(
+                new ContainerEvent(containerId, "ADD")
+              )
             }
           }
         }

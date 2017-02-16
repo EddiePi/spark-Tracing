@@ -159,4 +159,28 @@ public class TracingManager {
             }
         }
     }
+
+    public void containerEventNotification(ContainerEvent event) {
+        if (!isTracingEnabled) {
+            return;
+        }
+        TTransport transport = null;
+        TProtocol protocol;
+        try {
+            transport = new TSocket(serverURL, serverPort);
+            protocol = new TBinaryProtocol(transport);
+            TracingService.Client tClient = new TracingService.Client(protocol);
+            transport.open();
+            tClient.notityContainerEvent(event);
+
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != transport) {
+                transport.close();
+            }
+        }
+    }
 }
