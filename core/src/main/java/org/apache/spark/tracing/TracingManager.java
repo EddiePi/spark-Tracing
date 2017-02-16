@@ -171,7 +171,7 @@ public class TracingManager {
             protocol = new TBinaryProtocol(transport);
             TracingService.Client tClient = new TracingService.Client(protocol);
             transport.open();
-            tClient.notityContainerEvent(event);
+            tClient.notifyContainerEvent(event);
 
         } catch (TTransportException e) {
             e.printStackTrace();

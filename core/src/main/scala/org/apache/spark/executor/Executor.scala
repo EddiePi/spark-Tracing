@@ -197,6 +197,8 @@ private[spark] class Executor(
     env.metricsSystem.report()
     heartbeater.shutdown()
     heartbeater.awaitTermination(10, TimeUnit.SECONDS)
+    env.tracingManager.containerEventNotification(
+      new ContainerEvent(containerId, "REMOVE"))
     taskProfileManager.stop()
     threadPool.shutdown()
     if (!isLocal) {
