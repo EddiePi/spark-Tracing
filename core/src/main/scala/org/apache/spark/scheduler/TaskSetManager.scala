@@ -492,7 +492,7 @@ private[spark] class TaskSetManager(
             -1.0D,
             -1L,
             -1L,
-            "SUBMITTED",
+            "INIT",
             null))
         new TaskDescription(taskId = taskId, attemptNumber = attemptNum, execId,
           taskName, index, serializedTask)
