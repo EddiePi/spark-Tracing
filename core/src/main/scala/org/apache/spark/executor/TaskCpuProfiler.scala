@@ -96,13 +96,16 @@ class TaskCpuProfiler(val conf: SparkConf) extends Logging {
       logDebug("profiling cpu usage for task: " + taskId)
       val threadId = taskIdToThreadId.get(taskId)
       val curTime: Long = System.currentTimeMillis()
-      val elapsedTime: Double = (curTime - threadIdToPrevSystemTime.get(threadId)) * 1000000D
+      val elapsedTime: Double = (curTime - threadIdToPrevSystemTime.get(threadId))
 
       val curCpuTime = threadMXBean.getThreadCpuTime(threadId)
-      val elapsedCpuTime = curCpuTime - threadIdToPrevCpuTime.get(threadId)
-      val cpuUsage: Double =
+      val elapsedCpuTime = (curCpuTime - threadIdToPrevCpuTime.get(threadId)) / 1000000D
+      var cpuUsage: Double =
         Math.min(0.99D,
           (elapsedCpuTime / (elapsedTime * cores)))
+      if (cpuUsage.isNaN) {
+        cpuUsage = 0.0D
+      }
       taskIdToCpuUsage.put(taskId, cpuUsage)
 
       // update the previous time for each thread
